@@ -1,6 +1,7 @@
 ﻿using Discord;
 using Discord.Commands;
 using Discord.WebSocket;
+using Gatekeeper.Services;
 using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Threading.Tasks;
@@ -47,6 +48,7 @@ namespace Gatekeeper
 				.AddSingleton<DiscordSocketClient>()
 				.AddSingleton<CommandService>()
 				.AddSingleton<CommandHandlerService>()
+				.AddSingleton<RankingService>()
 				.BuildServiceProvider();
 		}
 	}

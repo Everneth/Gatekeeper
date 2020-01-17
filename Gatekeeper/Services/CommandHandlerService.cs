@@ -1,6 +1,7 @@
 ﻿using Discord;
 using Discord.Commands;
 using Discord.WebSocket;
+using Gatekeeper.Services;
 using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Collections.Generic;
@@ -41,6 +42,23 @@ namespace Gatekeeper
 
             // Create a number to track where the prefix ends and the command begins
             int argPos = 0;
+
+            var user = message.Author as SocketGuildUser;
+
+            bool IsApplicant = false;
+
+            foreach(var role in user.Roles)
+            {
+                if(role.Name.Equals("Applicant"))
+                {
+                    IsApplicant = true;
+                }
+            }
+
+            if(IsApplicant)
+            {
+                _services.GetRequiredService<RankingService>().Process(message);
+            }
 
             // Determine if the message is a command based on the prefix and make sure no bots trigger commands
             if (!(message.HasStringPrefix("$.", ref argPos) ||
