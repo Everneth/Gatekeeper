@@ -11,5 +11,13 @@ namespace Gatekeeper.Models
         public string DiscordUsername { get; set; }
         public int Discriminator { get; set; }
         public int Score { get; set; }
+
+        public Applicant(ulong id, string username, int discriminator, int score)
+        {
+            DiscordId = id;
+            DiscordUsername = username;
+            Discriminator = discriminator;
+            Score = score;
+        }
     }
 }

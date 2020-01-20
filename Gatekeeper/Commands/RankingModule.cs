@@ -20,8 +20,8 @@ namespace Gatekeeper.Commands
         [Command("score")]
         public async Task CheckScore()
         {
-            _ranking.Applicants.Where(u => u.DiscordId == Context.User.Id);
-            await ReplyAsync("d");
+            var applicant = _ranking.Applicants.SingleOrDefault(u => u.DiscordId == Context.User.Id);
+            await ReplyAsync(Context.User.Mention + " has " + applicant.Score + " points.");
         }
 
     }

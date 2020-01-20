@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Threading.Tasks;
+using System.Linq;
 
 namespace Gatekeeper.Services
 {
@@ -31,6 +32,12 @@ namespace Gatekeeper.Services
         }
         public void Process(SocketMessage message)
         {
+            // Does this user exist in the applicant list?
+            if (!_applicants.Exists(a => a.DiscordId == message.Author.Id))
+            {
+                _applicants.Add(new Applicant(message.Author.Id, message.Author.Username, message.Author.DiscriminatorValue, 0));
+            }
+
             // validate the message
             string content = message.Content;
 
