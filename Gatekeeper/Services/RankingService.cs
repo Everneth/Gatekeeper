@@ -43,6 +43,7 @@ namespace Gatekeeper.Services
                     message.Author.DiscriminatorValue,
                     0
                     ));
+                Save();
             }
 
             // validate the message
@@ -98,7 +99,11 @@ namespace Gatekeeper.Services
 
         private void Promote(SocketGuildUser user)
         {
-            
+            // TODO: Add to Pending group
+
+            // Once added to pending group, remove from ranking service
+            // No more tracking needed
+            Remove(user);
         }
 
         private List<Applicant> Load()
@@ -118,13 +123,7 @@ namespace Gatekeeper.Services
                 serializer.Serialize(file, Applicants);
             }
         }
-
-        public void Add(Applicant applicant)
-        {
-            Applicants.Add(applicant);
-            Save();
-        }
-
+        // debug command logic
         public bool Remove(SocketGuildUser user)
         {
             var appToRemove = Applicants.SingleOrDefault(a => a.DiscordId == user.Id);
