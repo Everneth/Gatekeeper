@@ -1,4 +1,5 @@
 ﻿using Discord.WebSocket;
+using Gatekeeper.Models;
 using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Collections.Generic;
@@ -11,6 +12,13 @@ namespace Gatekeeper.Services
     {
         private DiscordSocketClient _client;
         private IServiceProvider _services;
+        private List<Applicant> _applicants;
+
+        public List<Applicant> Applicants
+        {
+            get { return _applicants; }
+            set { value = _applicants; }
+        }
 
         private const int BASE_SCORE = 5;
         private const int ADDITIONAL_CHARS_SCORE = 1;
@@ -19,6 +27,7 @@ namespace Gatekeeper.Services
         {
             _client = services.GetRequiredService<DiscordSocketClient>();
             _services = services;
+            _applicants = new List<Applicant>();
         }
         public void Process(SocketMessage message)
         {
@@ -71,6 +80,11 @@ namespace Gatekeeper.Services
         private void Score(string message)
         {
 
+        }
+
+        private void Promote(SocketGuildUser user)
+        {
+            
         }
     }
 }
