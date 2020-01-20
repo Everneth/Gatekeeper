@@ -6,6 +6,8 @@ using System.Collections.Generic;
 using System.Text;
 using System.Threading.Tasks;
 using System.Linq;
+using Newtonsoft.Json;
+using System.IO;
 
 namespace Gatekeeper.Services
 {
@@ -28,14 +30,19 @@ namespace Gatekeeper.Services
         {
             _client = services.GetRequiredService<DiscordSocketClient>();
             _services = services;
-            _applicants = new List<Applicant>();
+            _applicants = Load();
         }
         public void Process(SocketMessage message)
         {
             // Does this user exist in the applicant list?
             if (!_applicants.Exists(a => a.DiscordId == message.Author.Id))
             {
-                _applicants.Add(new Applicant(message.Author.Id, message.Author.Username, message.Author.DiscriminatorValue, 0));
+                _applicants.Add(new Applicant(
+                    message.Author.Id,
+                    message.Author.Username,
+                    message.Author.DiscriminatorValue,
+                    0
+                    ));
             }
 
             // validate the message
@@ -92,6 +99,38 @@ namespace Gatekeeper.Services
         private void Promote(SocketGuildUser user)
         {
             
+        }
+
+        private List<Applicant> Load()
+        {
+            using (StreamReader file = File.OpenText(@"\Data\applicants.json"))
+            {
+                JsonSerializer serializer = new JsonSerializer();
+                return Applicants = (List<Applicant>)serializer.Deserialize(file, typeof(List<Applicant>));
+            }
+        }
+
+        private void Save()
+        {
+            using (StreamWriter file = File.CreateText(@"\Data\applicants.json"))
+            {
+                JsonSerializer serializer = new JsonSerializer();
+                serializer.Serialize(file, Applicants);
+            }
+        }
+
+        public void Add(Applicant applicant)
+        {
+            Applicants.Add(applicant);
+            Save();
+        }
+
+        public bool Remove(SocketGuildUser user)
+        {
+            var appToRemove = Applicants.SingleOrDefault(a => a.DiscordId == user.Id);
+            if (appToRemove.Equals(null))
+                return false;
+            else { Applicants.Remove(appToRemove); return true; }
         }
     }
 }
