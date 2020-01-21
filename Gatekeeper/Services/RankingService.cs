@@ -99,8 +99,9 @@ namespace Gatekeeper.Services
 
         private void Promote(SocketGuildUser user)
         {
-            // TODO: Add to Pending group
-
+            var role = user.Guild.Roles.SingleOrDefault(r => r.Name == "Pending");
+            user.AddRoleAsync(role);
+            
             // Once added to pending group, remove from ranking service
             // No more tracking needed
             Remove(user);
