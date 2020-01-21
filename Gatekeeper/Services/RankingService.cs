@@ -25,6 +25,7 @@ namespace Gatekeeper.Services
 
         private const int BASE_SCORE = 5;
         private const int ADDITIONAL_CHARS_SCORE = 1;
+        private const int PROMOTION_THRESHOLD = 40;
 
         public RankingService(IServiceProvider services)
         {
@@ -69,7 +70,7 @@ namespace Gatekeeper.Services
             // validation
             if(content.Length >= 20 && wordCount >= 5 && hasActualWords(content))
             {
-                Score(content);
+                Score(content, message.Author);
             }
         }
 
@@ -92,9 +93,14 @@ namespace Gatekeeper.Services
                 return false;
         }
 
-        private void Score(string message)
+        private void Score(string message, SocketUser user)
         {
+            // TODO: Scoring formula
 
+            if(_applicants.Find(u => u.DiscordId == user.Id).Score >= PROMOTION_THRESHOLD)
+            {
+                Promote(user as SocketGuildUser);
+            }
         }
 
         private void Promote(SocketGuildUser user)
