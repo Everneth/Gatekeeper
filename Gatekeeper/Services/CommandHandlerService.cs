@@ -22,19 +22,18 @@ namespace Gatekeeper
             _commands = services.GetRequiredService<CommandService>();
             _client = services.GetRequiredService<DiscordSocketClient>();
             _services = services;
-
-            _commands.CommandExecuted += CommandExecutedAsync;
-            
             _client.MessageReceived += MessageReceivedAsync;
+            _commands.CommandExecuted += CommandExecutedAsync;
         }
 
         public async Task InstallCommandsAsync()
         {
             await _commands.AddModulesAsync(assembly: Assembly.GetEntryAssembly(),
                                             services: _services);
+            
         }
 
-        private async Task MessageReceivedAsync(SocketMessage messageParam)
+        public async Task MessageReceivedAsync(SocketMessage messageParam)
         {
             // Don't process the command if it was a system message
             var message = messageParam as SocketUserMessage;
@@ -74,8 +73,8 @@ namespace Gatekeeper
                 argPos: argPos,
                 services: _services);
 
-            // if (!result.IsSuccess)
-            // await context.Channel.SendMessageAsync(result.ErrorReason);
+             if (!result.IsSuccess)
+             await context.Channel.SendMessageAsync(result.ErrorReason);
         }
 
         public async Task CommandExecutedAsync(Optional<CommandInfo> command, ICommandContext context, IResult result)

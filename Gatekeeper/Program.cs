@@ -12,6 +12,7 @@ namespace Gatekeeper
     {
 		private DiscordSocketClient _client;
 		private CommandService _commands;
+		private RankingService _ranking;
 
 		public static void Main(string[] args)
 		=> new Program().MainAsync().GetAwaiter().GetResult();	
@@ -20,7 +21,9 @@ namespace Gatekeeper
 		{
 			using (var services = ConfigureServices())
 			{
-				_client = new DiscordSocketClient();
+				_client = services.GetRequiredService<DiscordSocketClient>();
+				_commands = services.GetRequiredService<CommandService>();
+				_ranking = services.GetRequiredService<RankingService>();
 				var handler = new CommandHandlerService(services);
 
 				_client.Log += Log;

@@ -100,8 +100,7 @@ namespace Gatekeeper.Services
             int score = 0;
             var applicant = _applicants.Find(u => u.DiscordId == user.Id);
 
-            score += ((message.Length / BASE_CHAR_REQ) * ADDITIONAL_CHARS_SCORE) + BASE_SCORE;
-            applicant.Score = score;
+            applicant.Score += ((message.Length / BASE_CHAR_REQ) * ADDITIONAL_CHARS_SCORE) + BASE_SCORE;
 
             if (applicant.Score >= PROMOTION_THRESHOLD)
                 Promote(user as SocketGuildUser);
@@ -113,16 +112,17 @@ namespace Gatekeeper.Services
         {
             var role = user.Guild.Roles.SingleOrDefault(r => r.Name == "Pending");
             user.AddRoleAsync(role);
-            
+            user.RemoveRoleAsync(user.Guild.Roles.SingleOrDefault(r => r.Name == "Applicant"));
+
             // Once added to pending group, remove from ranking service
             // No more tracking needed
-            Remove(user);
-            Save();
+            if(Remove(user))
+                Save();
         }
 
         private List<Applicant> Load()
         {
-            using (StreamReader file = File.OpenText(@"\Data\applicants.json"))
+            using (StreamReader file = File.OpenText(@"..\..\..\Data\applicants.json"))
             {
                 JsonSerializer serializer = new JsonSerializer();
                 return Applicants = (List<Applicant>)serializer.Deserialize(file, typeof(List<Applicant>));
@@ -131,7 +131,7 @@ namespace Gatekeeper.Services
 
         private void Save()
         {
-            using (StreamWriter file = File.CreateText(@"\Data\applicants.json"))
+            using (StreamWriter file = File.CreateText(@"..\..\..\Data\applicants.json"))
             {
                 JsonSerializer serializer = new JsonSerializer();
                 serializer.Serialize(file, Applicants);

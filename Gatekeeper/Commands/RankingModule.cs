@@ -12,16 +12,20 @@ namespace Gatekeeper.Commands
     public class RankingModule : ModuleBase<SocketCommandContext>
     {
         private readonly RankingService _ranking;
-        public RankingModule(IServiceProvider services)
+        public RankingModule(RankingService ranking)
         {
-            _ranking = services.GetRequiredService<RankingService>();
+            _ranking = ranking;
         }
         
         [Command("score")]
         public async Task CheckScore()
         {
-            var applicant = _ranking.Applicants.SingleOrDefault(u => u.DiscordId == Context.User.Id);
-            await ReplyAsync(Context.User.Mention + " has " + applicant.Score + " points.");
+            var role = Context.Guild.Roles.SingleOrDefault(r => r.Name == "Applicant");
+            if (Context.Guild.CurrentUser.Roles.Contains(role))
+            {
+                var applicant = _ranking.Applicants.SingleOrDefault(u => u.DiscordId == Context.User.Id);
+                await ReplyAsync(Context.User.Mention + " has " + applicant.Score + " points.");
+            }
         }
 
     }
