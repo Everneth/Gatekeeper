@@ -26,6 +26,8 @@ namespace Gatekeeper.Services
         private const int BASE_SCORE = 5;
         private const int ADDITIONAL_CHARS_SCORE = 1;
         private const int PROMOTION_THRESHOLD = 40;
+        private const int BASE_CHAR_REQ = 20;
+        private const int REQUIRED_WORDS = 5;
 
         public RankingService(IServiceProvider services)
         {
@@ -68,7 +70,7 @@ namespace Gatekeeper.Services
             // count 
 
             // validation
-            if(content.Length >= 20 && wordCount >= 5 && hasActualWords(content))
+            if(content.Length >= BASE_CHAR_REQ && wordCount >= REQUIRED_WORDS && hasActualWords(content))
             {
                 Score(content, message.Author);
             }
@@ -95,12 +97,16 @@ namespace Gatekeeper.Services
 
         private void Score(string message, SocketUser user)
         {
-            // TODO: Scoring formula
+            int score = 0;
+            var applicant = _applicants.Find(u => u.DiscordId == user.Id);
 
-            if(_applicants.Find(u => u.DiscordId == user.Id).Score >= PROMOTION_THRESHOLD)
-            {
+            score += ((message.Length / BASE_CHAR_REQ) * ADDITIONAL_CHARS_SCORE) + BASE_SCORE;
+            applicant.Score = score;
+
+            if (applicant.Score >= PROMOTION_THRESHOLD)
                 Promote(user as SocketGuildUser);
-            }
+            else
+                Save();
         }
 
         private void Promote(SocketGuildUser user)
@@ -111,6 +117,7 @@ namespace Gatekeeper.Services
             // Once added to pending group, remove from ranking service
             // No more tracking needed
             Remove(user);
+            Save();
         }
 
         private List<Applicant> Load()
