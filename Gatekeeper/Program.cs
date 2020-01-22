@@ -24,7 +24,6 @@ namespace Gatekeeper
 				_client = services.GetRequiredService<DiscordSocketClient>();
 				_commands = services.GetRequiredService<CommandService>();
 				_ranking = services.GetRequiredService<RankingService>();
-				var handler = new CommandHandlerService(services);
 
 				_client.Log += Log;
 
