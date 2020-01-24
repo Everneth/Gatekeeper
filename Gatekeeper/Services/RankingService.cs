@@ -129,7 +129,7 @@ namespace Gatekeeper.Services
             }
         }
 
-        private void Save()
+        public void Save()
         {
             using (StreamWriter file = File.CreateText(@"..\..\..\Data\applicants.json"))
             {
@@ -144,6 +144,13 @@ namespace Gatekeeper.Services
             if (appToRemove.Equals(null))
                 return false;
             else { Applicants.Remove(appToRemove); return true; }
+        }
+
+        public bool Remove(Applicant user)
+        {
+            if (user.Equals(null))
+                return false;
+            else { Applicants.Remove(user); return true; }
         }
     }
 }
