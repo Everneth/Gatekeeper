@@ -1,6 +1,7 @@
 ﻿using Discord;
 using Discord.Commands;
 using Discord.WebSocket;
+using Gatekeeper.Services;
 using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Collections.Generic;
@@ -21,19 +22,18 @@ namespace Gatekeeper
             _commands = services.GetRequiredService<CommandService>();
             _client = services.GetRequiredService<DiscordSocketClient>();
             _services = services;
-
-            _commands.CommandExecuted += CommandExecutedAsync;
-            
             _client.MessageReceived += MessageReceivedAsync;
+            _commands.CommandExecuted += CommandExecutedAsync;
         }
 
         public async Task InstallCommandsAsync()
         {
             await _commands.AddModulesAsync(assembly: Assembly.GetEntryAssembly(),
                                             services: _services);
+            
         }
 
-        private async Task MessageReceivedAsync(SocketMessage messageParam)
+        public async Task MessageReceivedAsync(SocketMessage messageParam)
         {
             // Don't process the command if it was a system message
             var message = messageParam as SocketUserMessage;
@@ -41,6 +41,23 @@ namespace Gatekeeper
 
             // Create a number to track where the prefix ends and the command begins
             int argPos = 0;
+
+            var user = message.Author as SocketGuildUser;
+
+            bool IsApplicant = false;
+
+            foreach(var role in user.Roles)
+            {
+                if(role.Name.Equals("Applicant"))
+                {
+                    IsApplicant = true;
+                }
+            }
+
+            if(IsApplicant)
+            {
+                _services.GetRequiredService<RankingService>().Process(message);
+            }
 
             // Determine if the message is a command based on the prefix and make sure no bots trigger commands
             if (!(message.HasStringPrefix("$.", ref argPos) ||
@@ -56,8 +73,8 @@ namespace Gatekeeper
                 argPos: argPos,
                 services: _services);
 
-            // if (!result.IsSuccess)
-            // await context.Channel.SendMessageAsync(result.ErrorReason);
+             if (!result.IsSuccess)
+             await context.Channel.SendMessageAsync(result.ErrorReason);
         }
 
         public async Task CommandExecutedAsync(Optional<CommandInfo> command, ICommandContext context, IResult result)
