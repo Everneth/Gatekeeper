@@ -152,5 +152,24 @@ namespace Gatekeeper.Services
                 return false;
             else { Applicants.Remove(user); return true; }
         }
+
+        public string Clean(SocketGuild guild)
+        {
+            int numErrors = 0, numSuccesses = 0;
+            var role = guild.Roles.SingleOrDefault(r => r.Name == "Applicant");
+            foreach (var user in _applicants.ToList())
+            {
+                if (!guild.GetUser(user.DiscordId).Roles.Contains(role))
+                {
+                    if (_applicants.Remove(user))
+                        ++numSuccesses;
+                    else
+                        ++numErrors;
+                }
+            }
+            Save();
+            return "Clean completed. There were " + numSuccesses +" orphaned data. " +
+                "Error(s): " + numErrors;
+        }
     }
 }
