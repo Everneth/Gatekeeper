@@ -30,7 +30,6 @@ namespace Gatekeeper
         {
             await _commands.AddModulesAsync(assembly: Assembly.GetEntryAssembly(),
                                             services: _services);
-            
         }
 
         public async Task MessageReceivedAsync(SocketMessage messageParam)

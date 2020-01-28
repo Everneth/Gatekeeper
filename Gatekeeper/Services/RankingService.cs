@@ -16,6 +16,7 @@ namespace Gatekeeper.Services
         private DiscordSocketClient _client;
         private IServiceProvider _services;
         private List<Applicant> _applicants;
+        private ConfigService _config;
 
         public List<Applicant> Applicants
         {
@@ -23,15 +24,10 @@ namespace Gatekeeper.Services
             set { value = _applicants; }
         }
 
-        private const int BASE_SCORE = 5;
-        private const int ADDITIONAL_CHARS_SCORE = 1;
-        private const int PROMOTION_THRESHOLD = 40;
-        private const int BASE_CHAR_REQ = 20;
-        private const int REQUIRED_WORDS = 5;
-
         public RankingService(IServiceProvider services)
         {
             _client = services.GetRequiredService<DiscordSocketClient>();
+            _config = services.GetRequiredService<ConfigService>();
             _services = services;
             _applicants = Load();
         }
@@ -70,7 +66,7 @@ namespace Gatekeeper.Services
             // count 
 
             // validation
-            if(content.Length >= BASE_CHAR_REQ && wordCount >= REQUIRED_WORDS && hasActualWords(content))
+            if(content.Length >= _config.Config.BaseCharReq && wordCount >= _config.Config.RequiredWords && hasActualWords(content))
             {
                 Score(content, message.Author);
             }
@@ -100,9 +96,9 @@ namespace Gatekeeper.Services
             int score = 0;
             var applicant = _applicants.Find(u => u.DiscordId == user.Id);
 
-            applicant.Score += ((message.Length / BASE_CHAR_REQ) * ADDITIONAL_CHARS_SCORE) + BASE_SCORE;
+            applicant.Score += ((message.Length / _config.Config.BaseCharReq) * _config.Config.AdditionalCharsScore) + _config.Config.BaseScore;
 
-            if (applicant.Score >= PROMOTION_THRESHOLD)
+            if (applicant.Score >= _config.Config.PromoThreshold)
                 Promote(user as SocketGuildUser);
             else
                 Save();
@@ -122,7 +118,11 @@ namespace Gatekeeper.Services
 
         private List<Applicant> Load()
         {
+#if (DEBUG)
             using (StreamReader file = File.OpenText(@"..\..\..\Data\applicants.json"))
+#else
+            using (StreamReader file = File.OpenText(@"Data\applicants.json"))
+#endif
             {
                 JsonSerializer serializer = new JsonSerializer();
                 return Applicants = (List<Applicant>)serializer.Deserialize(file, typeof(List<Applicant>));

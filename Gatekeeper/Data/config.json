@@ -1,7 +1,1 @@
-{
-  "BaseCharReq": 0,
-  "BaseScore": 0,
-  "AdditionalCharsScore": 0,
-  "PromoThreshold": 0,
-  "RequiredWords": 0
-}
+{"BaseCharReq":3,"BaseScore":1,"AdditionalCharsScore":1,"PromoThreshold":75,"RequiredWords":5}

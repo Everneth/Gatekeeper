@@ -1,6 +1,7 @@
 ﻿using Discord;
 using Discord.Commands;
 using Discord.WebSocket;
+using Gatekeeper.Events;
 using Gatekeeper.Services;
 using Microsoft.Extensions.DependencyInjection;
 using System;
@@ -13,6 +14,8 @@ namespace Gatekeeper
 		private DiscordSocketClient _client;
 		private CommandService _commands;
 		private RankingService _ranking;
+		private ConfigService _config;
+		private UserJoinEvent _joinEvent;
 
 		public static void Main(string[] args)
 		=> new Program().MainAsync().GetAwaiter().GetResult();	
@@ -24,8 +27,12 @@ namespace Gatekeeper
 				_client = services.GetRequiredService<DiscordSocketClient>();
 				_commands = services.GetRequiredService<CommandService>();
 				_ranking = services.GetRequiredService<RankingService>();
+				_config = services.GetRequiredService<ConfigService>();
+				//_joinEvent = services.GetRequiredService<UserJoinEvent>();
 
 				_client.Log += Log;
+
+				await _client.SetGameAsync("everyone", null, ActivityType.Watching);
 
 				await _client.LoginAsync(TokenType.Bot,
 					Environment.GetEnvironmentVariable("DiscordToken"));
@@ -51,6 +58,8 @@ namespace Gatekeeper
 				.AddSingleton<CommandService>()
 				.AddSingleton<CommandHandlerService>()
 				.AddSingleton<RankingService>()
+				.AddSingleton<ConfigService>()
+				.AddSingleton<UserJoinEvent>()
 				.BuildServiceProvider();
 		}
 	}

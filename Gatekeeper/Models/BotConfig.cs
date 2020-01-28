@@ -4,7 +4,7 @@ using System.Text;
 
 namespace Gatekeeper.Models
 {
-    class Config
+    public class BotConfig
     {
         public int BaseCharReq { get; set; }
         public int BaseScore { get; set; }
@@ -12,7 +12,7 @@ namespace Gatekeeper.Models
         public int PromoThreshold { get; set; }
         public int RequiredWords { get; set; }
 
-        public Config (int baseCharReq, int baseScore, int additionalCharsScore, int promoThreshold, int requiredWords)
+        public BotConfig (int baseCharReq, int baseScore, int additionalCharsScore, int promoThreshold, int requiredWords)
         {
             BaseCharReq = baseCharReq;
             BaseScore = baseScore;
