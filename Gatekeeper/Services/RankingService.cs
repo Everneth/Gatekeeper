@@ -118,7 +118,11 @@ namespace Gatekeeper.Services
 
         private List<Applicant> Load()
         {
+#if (DEBUG)
             using (StreamReader file = File.OpenText(@"..\..\..\Data\applicants.json"))
+#else
+            using (StreamReader file = File.OpenText(@"Data\applicants.json"))
+#endif
             {
                 JsonSerializer serializer = new JsonSerializer();
                 return Applicants = (List<Applicant>)serializer.Deserialize(file, typeof(List<Applicant>));

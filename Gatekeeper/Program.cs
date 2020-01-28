@@ -32,6 +32,8 @@ namespace Gatekeeper
 
 				_client.Log += Log;
 
+				await _client.SetGameAsync("everyone", null, ActivityType.Watching);
+
 				await _client.LoginAsync(TokenType.Bot,
 					Environment.GetEnvironmentVariable("DiscordToken"));
 				await _client.StartAsync();
