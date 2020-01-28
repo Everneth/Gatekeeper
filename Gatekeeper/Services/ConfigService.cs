@@ -13,13 +13,13 @@ namespace Gatekeeper.Services
     {
         private DiscordSocketClient _client;
         private IServiceProvider _services;
-        public BotConfig Config;
+        public BotConfig Config { get; set; }
 
         public ConfigService(IServiceProvider services)
         {
             _client = services.GetRequiredService<DiscordSocketClient>();
             _services = services;
-            //Config = Load();
+            Config = Load();
         }
 
         private BotConfig Load()
