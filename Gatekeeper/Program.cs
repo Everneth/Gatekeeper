@@ -14,6 +14,7 @@ namespace Gatekeeper
 		private DiscordSocketClient _client;
 		private CommandService _commands;
 		private RankingService _ranking;
+		private ConfigService _config;
 		private UserJoinEvent _joinEvent;
 
 		public static void Main(string[] args)
@@ -26,6 +27,7 @@ namespace Gatekeeper
 				_client = services.GetRequiredService<DiscordSocketClient>();
 				_commands = services.GetRequiredService<CommandService>();
 				_ranking = services.GetRequiredService<RankingService>();
+				_config = services.GetRequiredService<ConfigService>();
 				//_joinEvent = services.GetRequiredService<UserJoinEvent>();
 
 				_client.Log += Log;
@@ -54,6 +56,7 @@ namespace Gatekeeper
 				.AddSingleton<CommandService>()
 				.AddSingleton<CommandHandlerService>()
 				.AddSingleton<RankingService>()
+				.AddSingleton<ConfigService>()
 				.AddSingleton<UserJoinEvent>()
 				.BuildServiceProvider();
 		}

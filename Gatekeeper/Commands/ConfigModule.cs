@@ -51,7 +51,7 @@ namespace Gatekeeper.Commands
                 await ReplyAsync("Score for additional characters past base updated to **" + amt + "**! OLD: " + oldAmt);
             }
         }
-        [Command("basecharreq")]
+        [Command("promothreshold")]
         public async Task setPromoThreshold(int amt)
         {
             if (IsStaff())

@@ -33,7 +33,7 @@ namespace Gatekeeper.Services
 
         public void Save()
         {
-            using (StreamWriter file = File.CreateText(@"..\..\..\Data\applicants.json"))
+            using (StreamWriter file = File.CreateText(@"..\..\..\Data\config.json"))
             {
                 JsonSerializer serializer = new JsonSerializer();
                 serializer.Serialize(file, Config);
