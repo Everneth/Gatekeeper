@@ -3,8 +3,6 @@ using Gatekeeper.Models;
 using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Collections.Generic;
-using System.Text;
-using System.Threading.Tasks;
 using System.Linq;
 using Newtonsoft.Json;
 using System.IO;
@@ -118,11 +116,7 @@ namespace Gatekeeper.Services
 
         private List<Applicant> Load()
         {
-#if (DEBUG)
-            using (StreamReader file = File.OpenText(@"..\..\..\Data\applicants.json"))
-#else
-            using (StreamReader file = File.OpenText(@"Data\applicants.json"))
-#endif
+            using (StreamReader file = File.OpenText(@"Data/applicants.json"))
             {
                 JsonSerializer serializer = new JsonSerializer();
                 return Applicants = (List<Applicant>)serializer.Deserialize(file, typeof(List<Applicant>));
@@ -131,7 +125,7 @@ namespace Gatekeeper.Services
 
         public void Save()
         {
-            using (StreamWriter file = File.CreateText(@"..\..\..\Data\applicants.json"))
+            using (StreamWriter file = File.CreateText(@"Data/applicants.json"))
             {
                 JsonSerializer serializer = new JsonSerializer();
                 serializer.Serialize(file, Applicants);
@@ -159,7 +153,22 @@ namespace Gatekeeper.Services
             var role = guild.Roles.SingleOrDefault(r => r.Name == "Applicant");
             foreach (var user in _applicants.ToList())
             {
-                if (!guild.GetUser(user.DiscordId).Roles.Contains(role))
+                var socketUser = _client.GetUser(user.DiscordId);
+                if(socketUser == null)
+                {
+                    if (_applicants.Remove(user))
+                        ++numSuccesses;
+                    else
+                        ++numErrors;
+                }
+                else if(!guild.Users.Contains(socketUser))
+                {
+                    if (_applicants.Remove(user))
+                        ++numSuccesses;
+                    else
+                        ++numErrors;
+                }
+                else if (!guild.GetUser(user.DiscordId).Roles.Contains(role))
                 {
                     if (_applicants.Remove(user))
                         ++numSuccesses;

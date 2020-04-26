@@ -28,14 +28,14 @@ namespace Gatekeeper
 				_commands = services.GetRequiredService<CommandService>();
 				_ranking = services.GetRequiredService<RankingService>();
 				_config = services.GetRequiredService<ConfigService>();
-				//_joinEvent = services.GetRequiredService<UserJoinEvent>();
+				_joinEvent = services.GetRequiredService<UserJoinEvent>();
 
 				_client.Log += Log;
 
 				await _client.SetGameAsync("everyone", null, ActivityType.Watching);
 
 				await _client.LoginAsync(TokenType.Bot,
-					Environment.GetEnvironmentVariable("DiscordToken"));
+					"");
 				await _client.StartAsync();
 
 				await services.GetRequiredService<CommandHandlerService>().InstallCommandsAsync();

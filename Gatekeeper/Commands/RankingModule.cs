@@ -20,14 +20,44 @@ namespace Gatekeeper.Commands
         }
         
         [Command("score")]
-        public async Task CheckScore()
+        public async Task CheckScore(ulong id = 0)
         {
-            var role = Context.Guild.Roles.SingleOrDefault(r => r.Name == "Applicant");
+            var role = Context.Guild.Roles.SingleOrDefault(r => r.Name == "Staff");
             if (Context.Guild.GetUser(Context.User.Id).Roles.Contains(role))
             {
-                var applicant = _ranking.Applicants.SingleOrDefault(u => u.DiscordId == Context.User.Id);
-                await ReplyAsync(Context.User.Mention + " has " + applicant.Score + " points.");
+                if (id != 0)
+                {
+                    var applicant = _ranking.Applicants.SingleOrDefault(u => u.DiscordId == id);
+                    if(applicant == null)
+                    {
+                        await ReplyAsync("User not found!");
+
+                    }
+                    else
+                    {
+                        await ReplyAsync(Context.Guild.GetUser(id).Mention + " has " + applicant.Score + " points.");
+                    }
+
+                }
+                else
+                {
+                    
+                    await ReplyAsync("Please supply a Discord ID. [$.ranking score <id>]");
+                }
             }
+        }
+
+        [Command("allscores")]
+        public async Task ShowAllScores()
+        {
+            StringBuilder sb = new StringBuilder();
+            sb.Append("```asciidoc\n = Current Applicants =\n");
+            foreach(var user in _ranking.Applicants.ToList())
+            {
+                sb.Append(string.Format("{0}#{1} :: {2}", user.DiscordUsername, user.Discriminator, user.Score));
+            }
+            sb.Append("```");
+            await ReplyAsync(sb.ToString());
         }
 
         [Command("clean")]
