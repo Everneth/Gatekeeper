@@ -51,10 +51,10 @@ namespace Gatekeeper.Commands
         public async Task ShowAllScores()
         {
             StringBuilder sb = new StringBuilder();
-            sb.Append("```asciidoc\n = Current Applicants =\n");
+            sb.Append("```asciidoc\n= Current Applicants =\n");
             foreach(var user in _ranking.Applicants.ToList())
             {
-                sb.Append(string.Format("{0}#{1} :: {2}", user.DiscordUsername, user.Discriminator, user.Score));
+                sb.Append(string.Format("{0}#{1} :: {2}\n", user.DiscordUsername, user.Discriminator, user.Score));
             }
             sb.Append("```");
             await ReplyAsync(sb.ToString());
@@ -68,6 +68,17 @@ namespace Gatekeeper.Commands
             if (Context.Guild.GetUser(Context.User.Id).Roles.Contains(staffRole))
             {
                 await ReplyAsync(_ranking.Clean(Context.Guild));
+            }
+        }
+
+        [Command("reload")]
+        public async Task Reload()
+        {
+            var staffRole = Context.Guild.Roles.SingleOrDefault(r => r.Name == "Staff");
+            if (Context.Guild.GetUser(Context.User.Id).Roles.Contains(staffRole))
+            {
+                _ranking.Reload();
+                await ReplyAsync("Applicant list reloaded.");
             }
         }
     }

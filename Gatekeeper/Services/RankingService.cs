@@ -123,6 +123,15 @@ namespace Gatekeeper.Services
             }
         }
 
+        public void Reload()
+        {
+            using (StreamReader file = File.OpenText(@"Data/applicants.json"))
+            {
+                JsonSerializer serializer = new JsonSerializer();
+                Applicants = (List<Applicant>)serializer.Deserialize(file, typeof(List<Applicant>));
+            }
+        }
+
         public void Save()
         {
             using (StreamWriter file = File.CreateText(@"Data/applicants.json"))
@@ -154,6 +163,8 @@ namespace Gatekeeper.Services
             foreach (var user in _applicants.ToList())
             {
                 var socketUser = _client.GetUser(user.DiscordId);
+
+                // Deleted user?
                 if(socketUser == null)
                 {
                     if (_applicants.Remove(user))
@@ -161,13 +172,15 @@ namespace Gatekeeper.Services
                     else
                         ++numErrors;
                 }
-                else if(!guild.Users.Contains(socketUser))
+                // Is the user in the guild?
+                else if(guild.GetUser(user.DiscordId) == null)
                 {
                     if (_applicants.Remove(user))
                         ++numSuccesses;
                     else
                         ++numErrors;
                 }
+                // Does the user exist, but is not an applicant anymore?
                 else if (!guild.GetUser(user.DiscordId).Roles.Contains(role))
                 {
                     if (_applicants.Remove(user))
