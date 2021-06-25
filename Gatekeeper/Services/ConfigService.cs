@@ -10,33 +10,16 @@ namespace Gatekeeper.Services
     public class ConfigService
     {
         private DiscordSocketClient _client;
+        private DataService _data;
         private IServiceProvider _services;
         public BotConfig Config { get; set; }
 
         public ConfigService(IServiceProvider services)
         {
             _client = services.GetRequiredService<DiscordSocketClient>();
+            _data = services.GetRequiredService<DataService>();
             _services = services;
-            Config = Load();
-        }
-
-        private BotConfig Load()
-        {
-            using (StreamReader file = File.OpenText(@"Data/config.json"))
-
-            {
-                JsonSerializer serializer = new JsonSerializer();
-                return Config = (BotConfig)serializer.Deserialize(file, typeof(BotConfig));
-            }
-        }
-
-        public void Save()
-        {
-            using (StreamWriter file = File.CreateText(@"Data/config.json"))
-            {
-                JsonSerializer serializer = new JsonSerializer();
-                serializer.Serialize(file, Config);
-            }
+            Config = _data.Load("config", Config);
         }
     }
 }

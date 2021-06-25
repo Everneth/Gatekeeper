@@ -14,9 +14,11 @@ namespace Gatekeeper.Commands
     public class ConfigModule : ModuleBase<SocketCommandContext>
     {
         private readonly ConfigService _config;
+        private readonly DataService _data;
         public ConfigModule(IServiceProvider services)
         {
             _config = services.GetRequiredService<ConfigService>();
+            _data = services.GetRequiredService<DataService>();
         }
         [Command("basecharreq")]
         public async Task setBaseCharReq(int amt)
@@ -25,7 +27,7 @@ namespace Gatekeeper.Commands
             {
                 int oldAmt = _config.Config.BaseCharReq;
                 _config.Config.BaseCharReq = amt;
-                _config.Save();
+                _data.Save("config", _config.Config);
                 await ReplyAsync("Base characters required updated to **" + amt + "**! OLD: " + oldAmt);
             }
         }
@@ -36,7 +38,7 @@ namespace Gatekeeper.Commands
             {
                 int oldAmt = _config.Config.BaseScore;
                 _config.Config.BaseScore = amt;
-                _config.Save();
+                _data.Save("config", _config.Config);
                 await ReplyAsync("Base score for qualified mesages updated to **" + amt + "**! OLD: " + oldAmt);
             }
         }
@@ -47,7 +49,7 @@ namespace Gatekeeper.Commands
             {
                 int oldAmt = _config.Config.AdditionalCharsScore;
                 _config.Config.AdditionalCharsScore = amt;
-                _config.Save();
+                _data.Save("config", _config.Config);
                 await ReplyAsync("Score for additional characters past base updated to **" + amt + "**! OLD: " + oldAmt);
             }
         }
@@ -58,7 +60,7 @@ namespace Gatekeeper.Commands
             {
                 int oldAmt = _config.Config.PromoThreshold;
                 _config.Config.PromoThreshold = amt;
-                _config.Save();
+                _data.Save("config", _config.Config);
                 await ReplyAsync("Score threshold for promotion to pending updated to **" + amt + "**! OLD: " + oldAmt);
             }
         }
@@ -69,7 +71,7 @@ namespace Gatekeeper.Commands
             {
                 int oldAmt = _config.Config.RequiredWords;
                 _config.Config.RequiredWords = amt;
-                _config.Save();
+                _data.Save("config", _config.Config);
                 await ReplyAsync("Required amount of words to score a message updated to **" + amt + "**! OLD: " + oldAmt);
             }
         }

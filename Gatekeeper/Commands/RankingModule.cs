@@ -14,8 +14,10 @@ namespace Gatekeeper.Commands
     public class RankingModule : ModuleBase<SocketCommandContext>
     {
         private readonly RankingService _ranking;
+        private readonly DataService _data;
         public RankingModule(IServiceProvider services)
         {
+            _data = services.GetRequiredService<DataService>();
             _ranking = services.GetRequiredService<RankingService>();
         }
         
@@ -77,7 +79,7 @@ namespace Gatekeeper.Commands
             var staffRole = Context.Guild.Roles.SingleOrDefault(r => r.Name == "Staff");
             if (Context.Guild.GetUser(Context.User.Id).Roles.Contains(staffRole))
             {
-                _ranking.Reload();
+                _data.Load("applicants", _ranking.Applicants);
                 await ReplyAsync("Applicant list reloaded.");
             }
         }

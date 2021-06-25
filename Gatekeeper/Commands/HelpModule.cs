@@ -16,7 +16,7 @@ namespace Gatekeeper.Commands
                     IconUrl = Context.Client.CurrentUser.GetAvatarUrl(),
                     Name = Context.Client.CurrentUser.Username
                 },
-                Color = new Color(),
+                Color = new Color(52, 85, 235),
                 Title = "Jasper's Commands Help",
                 Description = "Change the configuration of Jasper and view players scores.",
                 Footer = new EmbedFooterBuilder()
@@ -74,7 +74,17 @@ namespace Gatekeeper.Commands
             {
                 Name = "$.config requiredwords <new value>",
                 Value = "Change the amount of words required in a message for it to be scored."
-            });
+            })
+            .AddField(new EmbedFieldBuilder()
+             {
+                 Name = "$.info getid <name string>",
+                 Value = "Search users and return a list of IDs"
+             })
+            .AddField(new EmbedFieldBuilder()
+             {
+                 Name = "$.info getmention <id>",
+                 Value = "Return user as a mention for quick access to their account/view roles."
+             });
             await ReplyAsync(embed: eb.Build());
         }
     }

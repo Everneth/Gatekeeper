@@ -15,6 +15,7 @@ namespace Gatekeeper.Services
         private IServiceProvider _services;
         private List<Applicant> _applicants;
         private ConfigService _config;
+        private DataService _data;
 
         public List<Applicant> Applicants
         {
@@ -26,8 +27,9 @@ namespace Gatekeeper.Services
         {
             _client = services.GetRequiredService<DiscordSocketClient>();
             _config = services.GetRequiredService<ConfigService>();
+            _data = services.GetRequiredService<DataService>();
             _services = services;
-            _applicants = Load();
+            _applicants = _data.Load("applicants", _applicants);
         }
         public void Process(SocketMessage message)
         {
@@ -40,7 +42,7 @@ namespace Gatekeeper.Services
                     message.Author.DiscriminatorValue,
                     0
                     ));
-                Save();
+                _data.Save("applicants", _applicants);
             }
 
             // validate the message
@@ -99,7 +101,7 @@ namespace Gatekeeper.Services
             if (applicant.Score >= _config.Config.PromoThreshold)
                 Promote(user as SocketGuildUser);
             else
-                Save();
+                _data.Save("applicants", _applicants);
         }
 
         private void Promote(SocketGuildUser user)
@@ -111,34 +113,7 @@ namespace Gatekeeper.Services
             // Once added to pending group, remove from ranking service
             // No more tracking needed
             if(Remove(user))
-                Save();
-        }
-
-        private List<Applicant> Load()
-        {
-            using (StreamReader file = File.OpenText(@"Data/applicants.json"))
-            {
-                JsonSerializer serializer = new JsonSerializer();
-                return Applicants = (List<Applicant>)serializer.Deserialize(file, typeof(List<Applicant>));
-            }
-        }
-
-        public void Reload()
-        {
-            using (StreamReader file = File.OpenText(@"Data/applicants.json"))
-            {
-                JsonSerializer serializer = new JsonSerializer();
-                Applicants = (List<Applicant>)serializer.Deserialize(file, typeof(List<Applicant>));
-            }
-        }
-
-        public void Save()
-        {
-            using (StreamWriter file = File.CreateText(@"Data/applicants.json"))
-            {
-                JsonSerializer serializer = new JsonSerializer();
-                serializer.Serialize(file, Applicants);
-            }
+                _data.Save("applicants", _applicants);
         }
         // debug command logic
         public bool Remove(SocketGuildUser user)
@@ -189,7 +164,7 @@ namespace Gatekeeper.Services
                         ++numErrors;
                 }
             }
-            Save();
+            _data.Save("applicants", _applicants);
             return "Clean completed. There were " + numSuccesses +" orphaned data. " +
                 "Error(s): " + numErrors;
         }
