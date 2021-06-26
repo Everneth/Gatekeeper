@@ -1,12 +1,25 @@
 ﻿using Discord;
 using Discord.Commands;
+using Microsoft.Extensions.DependencyInjection;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
 using System.Threading.Tasks;
 
 namespace Gatekeeper.Commands
 {
     public class HelpModule : ModuleBase<SocketCommandContext>
     {
+        private CommandService _commands;
+        
+        public HelpModule(IServiceProvider services)
+        {
+            _commands = services.GetRequiredService<CommandService>();
+        }
+
         [Command("help")]
+        [Summary("List all commands available")]
         public async Task Help()
         {
             EmbedBuilder eb = new EmbedBuilder()
@@ -21,7 +34,7 @@ namespace Gatekeeper.Commands
                 Description = "Change the configuration of Jasper and view players scores.",
                 Footer = new EmbedFooterBuilder()
                 {
-                    Text = "Bot created by @Faceman.",
+                    Text = "Bot created by @Faceman and @Riki.",
                     IconUrl = Context.Guild.IconUrl
                 }
             }
@@ -29,62 +42,28 @@ namespace Gatekeeper.Commands
             {
                 Name = "$.help",
                 Value = "List all commands available"
-            })
-            .AddField(new EmbedFieldBuilder()
+            });
+            List<CommandInfo> commands = _commands.Commands.ToList();
+            foreach (CommandInfo command in commands)
             {
-                Name = "$.ranking score <DiscordID>",
-                Value = "Pull up a single applicant's score."
-            })
-            .AddField(new EmbedFieldBuilder()
-            {
-                Name = "$.ranking allscores",
-                Value = "Retrieve all scores for applicants."
-            })
-            .AddField(new EmbedFieldBuilder()
-            {
-                Name = "$.ranking clean",
-                Value = "Clean out orphaned data in the ranking cache. Use this command if you suspect tracking has stopped working or if several applicants leave the discord."
-            })
-            .AddField(new EmbedFieldBuilder()
-            {
-                Name = "$.config show",
-                Value = "Show the current values that Jasper uses in the formula to score messages."
-            })
-            .AddField(new EmbedFieldBuilder()
-            {
-                Name = "$.config basecharreq <new value>",
-                Value = "Change the minimum characters required in each message in order to score."
-            })
-            .AddField(new EmbedFieldBuilder()
-            {
-                Name = "$.config basescore <new value>",
-                Value = "Change the initial score awarded for qualified messages."
-            })
-            .AddField(new EmbedFieldBuilder()
-            {
-                Name = "$.config additionalcharscore <new value>",
-                Value = "Change the bonus score awarded for additional characters in a message."
-            })
-            .AddField(new EmbedFieldBuilder()
-            {
-                Name = "$.config promothreshold <new value>",
-                Value = "Change the amount of points required for the applicant to reach in order to be promoted to Pending."
-            })
-            .AddField(new EmbedFieldBuilder()
-            {
-                Name = "$.config requiredwords <new value>",
-                Value = "Change the amount of words required in a message for it to be scored."
-            })
-            .AddField(new EmbedFieldBuilder()
-             {
-                 Name = "$.info getid <name string>",
-                 Value = "Search users and return a list of IDs"
-             })
-            .AddField(new EmbedFieldBuilder()
-             {
-                 Name = "$.info getmention <id>",
-                 Value = "Return user as a mention for quick access to their account/view roles."
-             });
+                // Get the command Summary attribute information
+                string embedFieldText = command.Summary ?? "No description available\n";
+                StringBuilder builder = new StringBuilder();
+
+                if (!command.Module.Name.Equals("HelpModule"))
+                {
+                    builder.Append($"$.{command.Module.Name} ");
+                    builder.Append($"{command.Name} ");
+
+                    if (command.Parameters.Count > 0)
+                    {
+                        builder.Append($"<{string.Join(" ", command.Parameters)}>");
+                    }
+
+                    eb.AddField(builder.ToString(), embedFieldText);
+                }
+            }
+            
             await ReplyAsync(embed: eb.Build());
         }
     }

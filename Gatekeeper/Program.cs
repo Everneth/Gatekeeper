@@ -18,6 +18,8 @@ namespace Gatekeeper
 		private ConfigService _config;
 		private UserJoinEvent _joinEvent;
 		private DataService _data;
+		private AuditService _auditer;
+		private RoleService _manager;
 		private DiscordToken _token;
 
 		public static void Main(string[] args)
@@ -33,13 +35,16 @@ namespace Gatekeeper
 				_config = services.GetRequiredService<ConfigService>();
 				_joinEvent = services.GetRequiredService<UserJoinEvent>();
 				_data = services.GetRequiredService<DataService>();
+				_auditer = services.GetRequiredService<AuditService>();
+				_manager = services.GetRequiredService<RoleService>();
 
 				_client.Log += Log;
 
 				await _client.SetGameAsync("everyone", null, ActivityType.Watching);
 
-				await _client.LoginAsync(TokenType.Bot,
-					_data.Load("token", _token.Token));
+				DiscordToken token = _data.Load("token", _token);
+
+				await _client.LoginAsync(TokenType.Bot, token.Token);
 				await _client.StartAsync();
 
 				await services.GetRequiredService<CommandHandlerService>().InstallCommandsAsync();
@@ -61,7 +66,8 @@ namespace Gatekeeper
 				.AddSingleton(new DiscordSocketClient(
 					new DiscordSocketConfig
 					{
-						AlwaysDownloadUsers = true
+						AlwaysDownloadUsers = true,
+						MessageCacheSize = 3000
 					}))
 				.AddSingleton<CommandService>()
 				.AddSingleton<CommandHandlerService>()
@@ -69,6 +75,8 @@ namespace Gatekeeper
 				.AddSingleton<ConfigService>()
 				.AddSingleton<DataService>()
 				.AddSingleton<UserJoinEvent>()
+				.AddSingleton<AuditService>()
+				.AddSingleton<RoleService>()
 				.BuildServiceProvider();
 		}
 	}

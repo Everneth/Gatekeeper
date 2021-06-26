@@ -22,6 +22,7 @@ namespace Gatekeeper.Commands
         }
         
         [Command("score")]
+        [Summary("Pull up a single applicant's score.")]
         public async Task CheckScore(ulong id = 0)
         {
             var role = Context.Guild.Roles.SingleOrDefault(r => r.Name == "Staff");
@@ -50,6 +51,7 @@ namespace Gatekeeper.Commands
         }
 
         [Command("allscores")]
+        [Summary("Retrieve all scores for applicants.")]
         public async Task ShowAllScores()
         {
             StringBuilder sb = new StringBuilder();
@@ -63,6 +65,7 @@ namespace Gatekeeper.Commands
         }
 
         [Command("clean")]
+        [Summary("Clean out orphaned data in the ranking cache. Use this command if you suspect tracking has stopped working or if several applicants leave the discord.")]
         public async Task CleanRankData()
         {
             
@@ -74,6 +77,7 @@ namespace Gatekeeper.Commands
         }
 
         [Command("reload")]
+        [Summary("Reload the list of applicant data into memory.")]
         public async Task Reload()
         {
             var staffRole = Context.Guild.Roles.SingleOrDefault(r => r.Name == "Staff");

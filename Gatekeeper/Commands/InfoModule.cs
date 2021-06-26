@@ -12,6 +12,7 @@ namespace Gatekeeper.Commands
     public class InfoModule : ModuleBase<SocketCommandContext>
     {
         [Command("getid")]
+        [Summary("Search users and return a list of IDs")]
         public async Task GetDiscordID(string info)
         {
             var users = Context.Guild.Users.Where(u => u.Username.Contains(info)).ToList();
@@ -37,7 +38,9 @@ namespace Gatekeeper.Commands
             sb.Append("```");
             return sb.ToString();
         }
+        
         [Command("getmention")]
+        [Summary("Return user as a mention for quick access to their account/view roles.")]
         public async Task GetMention(ulong id)
         {
             await ReplyAsync(Context.Guild.GetUser(id).Mention);

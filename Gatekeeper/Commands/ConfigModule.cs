@@ -20,7 +20,9 @@ namespace Gatekeeper.Commands
             _config = services.GetRequiredService<ConfigService>();
             _data = services.GetRequiredService<DataService>();
         }
+
         [Command("basecharreq")]
+        [Summary("Change the minimum characters required in each message in order to score.")]
         public async Task setBaseCharReq(int amt)
         {
             if (IsStaff())
@@ -31,7 +33,9 @@ namespace Gatekeeper.Commands
                 await ReplyAsync("Base characters required updated to **" + amt + "**! OLD: " + oldAmt);
             }
         }
+
         [Command("basescore")]
+        [Summary("Change the initial score awarded for qualified messages.")]
         public async Task setBaseScore(int amt)
         {
             if (IsStaff())
@@ -42,7 +46,9 @@ namespace Gatekeeper.Commands
                 await ReplyAsync("Base score for qualified mesages updated to **" + amt + "**! OLD: " + oldAmt);
             }
         }
+
         [Command("additionalcharscore")]
+        [Summary("Change the bonus score awarded for additional characters in a message.")]
         public async Task setAdditionalCharsScore(int amt)
         {
             if (IsStaff())
@@ -53,7 +59,9 @@ namespace Gatekeeper.Commands
                 await ReplyAsync("Score for additional characters past base updated to **" + amt + "**! OLD: " + oldAmt);
             }
         }
+
         [Command("promothreshold")]
+        [Summary("Change the amount of points required for the applicant to reach in order to be promoted to Pending.")]
         public async Task setPromoThreshold(int amt)
         {
             if (IsStaff())
@@ -65,6 +73,7 @@ namespace Gatekeeper.Commands
             }
         }
         [Command("requiredwords")]
+        [Summary("Change the amount of words required in a message for it to be scored.")]
         public async Task setRequiredWords(int amt)
         {
             if (IsStaff())
@@ -76,6 +85,7 @@ namespace Gatekeeper.Commands
             }
         }
         [Command("show")]
+        [Summary("Show the current values that Jasper uses in the formula to score messages.")]
         public async Task showConfig()
         {
             if (IsStaff())
