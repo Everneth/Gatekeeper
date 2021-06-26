@@ -20,6 +20,7 @@ namespace Gatekeeper.Modules
         }
 
         [Command("add")]
+        [Summary("Add a role to the joinable whitelist.")]
         private async Task AddRoleAsync([Remainder] string roleName)
         {
             if (IsStaff())
@@ -33,6 +34,7 @@ namespace Gatekeeper.Modules
         }
 
         [Command("remove")]
+        [Summary("Remove a role from the joinable whitelist.")]
         private async Task RemoveRoleAsync([Remainder] string roleName)
         {
             if (IsStaff())
@@ -45,6 +47,7 @@ namespace Gatekeeper.Modules
         }
 
         [Command("join")]
+        [Summary("Join a role on the joinable whitelist.")]
         private async Task JoinRoleAsync([Remainder] string roleName)
         {
             SocketGuildUser user = Context.Guild.GetUser(Context.User.Id);
@@ -64,6 +67,7 @@ namespace Gatekeeper.Modules
         }
 
         [Command("leave")]
+        [Summary("Leave a role on the joinable whitelist.")]
         private async Task LeaveRoleAsync([Remainder] string roleName)
         {
             SocketRole role = Context.Guild.Roles.Where(x => x.Name == roleName).FirstOrDefault();
@@ -76,6 +80,7 @@ namespace Gatekeeper.Modules
         }
 
         [Command("list")]
+        [Summary("List all joinable roles")]
         private async Task ListRolesAsync()
         {
             StringBuilder builder = new StringBuilder();

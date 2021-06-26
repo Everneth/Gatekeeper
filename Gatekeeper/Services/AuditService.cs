@@ -47,8 +47,12 @@ namespace Gatekeeper.Services
 
         private async Task LogMessageUpdated(Cacheable<IMessage, ulong> cachedMessage, SocketMessage newMessage, ISocketMessageChannel channel)
         {
-            if (cachedMessage.Value == null) return;
+            var socketGuildChannel = _client.GetGuild(177976693942779904).Channels.Where(x => x.Name == "admin-log").FirstOrDefault();
+            if (cachedMessage.Value == null || cachedMessage.Value.Channel.Id == socketGuildChannel.Id 
+                || cachedMessage.Value.Content.Equals(newMessage.Content)) return;
 
+            if (newMessage.Equals($"*{cachedMessage}*")) return;
+            
             IMessage message = cachedMessage.Value;
             StringBuilder builder = new StringBuilder();
 
