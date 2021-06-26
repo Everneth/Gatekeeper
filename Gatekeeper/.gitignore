@@ -12,6 +12,7 @@
 [Dd]ata/applicants.json
 [Dd]ata/config.json
 [Dd]ata/token.json
+[Dd]ata/roles.json
 [Mm]odels/Config.cs
 
 # User-specific files (MonoDevelop/Xamarin Studio)

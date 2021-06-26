@@ -16,6 +16,7 @@ namespace Gatekeeper.Services
         {
             _client = services.GetRequiredService<DiscordSocketClient>();
             _client.MessageDeleted += LogMessageDeleted;
+            _client.MessageUpdated += LogMessageUpdated;
             _client.GuildMemberUpdated += LogGuildMemberUpdated;
             _client.UserUpdated += LogUserUpdated;
             _client.UserBanned += LogUserBanned;
@@ -42,6 +43,20 @@ namespace Gatekeeper.Services
             string audit = $"**{message.Author}'s** message in <#{message.Channel.Id}> was deleted. Content: \n{message.Content}";
 
             await SendAudit(audit, ":wastebasket:");
+        }
+
+        private async Task LogMessageUpdated(Cacheable<IMessage, ulong> cachedMessage, SocketMessage newMessage, ISocketMessageChannel channel)
+        {
+            if (cachedMessage.Value == null) return;
+
+            IMessage message = cachedMessage.Value;
+            StringBuilder builder = new StringBuilder();
+
+            builder.AppendLine($"**{message.Author}'s** message in <#{message.Channel.Id}> was updated.");
+            builder.AppendLine($"Old content: {message}");
+            builder.AppendLine($"New content: *{newMessage}*");
+
+            await SendAudit(builder.ToString(), ":computer:");
         }
 
         private async Task LogGuildMemberUpdated(SocketGuildUser before, SocketGuildUser after)
