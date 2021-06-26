@@ -19,6 +19,7 @@ namespace Gatekeeper
 		private UserJoinEvent _joinEvent;
 		private DataService _data;
 		private AuditService _auditer;
+		private RoleService _manager;
 		private DiscordToken _token;
 
 		public static void Main(string[] args)
@@ -35,6 +36,7 @@ namespace Gatekeeper
 				_joinEvent = services.GetRequiredService<UserJoinEvent>();
 				_data = services.GetRequiredService<DataService>();
 				_auditer = services.GetRequiredService<AuditService>();
+				_manager = services.GetRequiredService<RoleService>();
 
 				_client.Log += Log;
 
@@ -74,6 +76,7 @@ namespace Gatekeeper
 				.AddSingleton<DataService>()
 				.AddSingleton<UserJoinEvent>()
 				.AddSingleton<AuditService>()
+				.AddSingleton<RoleService>()
 				.BuildServiceProvider();
 		}
 	}
