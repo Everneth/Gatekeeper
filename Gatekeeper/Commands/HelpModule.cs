@@ -9,9 +9,9 @@ using System.Threading.Tasks;
 
 namespace Gatekeeper.Commands
 {
-    public class HelpModule : ModuleBase<SocketCommandContext>
+    public class HelpModule : JasperBase
     {
-        private CommandService _commands;
+        private readonly CommandService _commands;
         
         public HelpModule(IServiceProvider services)
         {

@@ -60,7 +60,7 @@ namespace Gatekeeper.Services
             builder.AppendLine($"Old content: {message}");
             builder.AppendLine($"New content: *{newMessage}*");
 
-            await SendAudit(builder.ToString(), ":computer:");
+            await SendAudit(builder.ToString(), ":pencil:");
         }
 
         private async Task LogGuildMemberUpdated(SocketGuildUser before, SocketGuildUser after)
@@ -83,7 +83,12 @@ namespace Gatekeeper.Services
                 }
 
                 // skip the @everyone role and sort from highest ranking role to lowest
-                builder.Append($"Current roles: `{string.Join(", ", after.Roles.Skip(1).OrderByDescending(x => x.Position))}`");
+                builder.Append($"Current roles: ");
+
+                if (after.Roles.Count > 0)
+                {
+                    builder.Append($"`{string.Join(", ", after.Roles.Skip(1).OrderByDescending(x => x.Position))}`");
+                }
             }
             else if (before.Nickname != null || after.Nickname != null)
             {

@@ -4,9 +4,7 @@ using Discord.WebSocket;
 using Gatekeeper.Services;
 using Microsoft.Extensions.DependencyInjection;
 using System;
-using System.Collections.Generic;
 using System.Reflection;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace Gatekeeper
