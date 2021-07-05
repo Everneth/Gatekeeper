@@ -134,12 +134,12 @@ namespace Gatekeeper.Services
 
         private async Task LogUserJoined(SocketGuildUser user)
         {
-            await SendAudit($"**{user}** joined the server.", ":door:");
+            await SendAudit($"**{user}** joined the server. Total Guild Members: **{user.Guild.MemberCount}**", ":door:");
         }
 
         private async Task LogUserLeft(SocketGuildUser user)
         {
-            await SendAudit($"**{user}** left the server.", ":door:");
+            await SendAudit($"**{user}** left the server. Total Guild Members: **{user.Guild.MemberCount}**", ":door:");
         }
     }
 }
