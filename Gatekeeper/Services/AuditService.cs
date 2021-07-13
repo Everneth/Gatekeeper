@@ -31,7 +31,7 @@ namespace Gatekeeper.Services
             var socketGuildChannel = _client.GetGuild(177976693942779904).Channels.Where(x => x.Name == "admin-log").FirstOrDefault();
             var channel = socketGuildChannel.Guild.GetTextChannel(socketGuildChannel.Id);
 
-            await channel.SendMessageAsync($"{emote} `[{currentTime:hh\\:mm\\:ss}]` {audit}");
+            await channel.SendMessageAsync($"{emote} `[{currentTime:hh\\:mm\\:ss}]` {audit}", allowedMentions: AllowedMentions.None);
         }
 
         private async Task LogMessageDeleted(Cacheable<IMessage, ulong> cachedMessage, ISocketMessageChannel channel)
