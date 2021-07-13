@@ -1,9 +1,7 @@
 ﻿using Discord.Commands;
-using Discord.WebSocket;
 using Gatekeeper.Services;
 using Microsoft.Extensions.DependencyInjection;
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -11,7 +9,7 @@ using System.Threading.Tasks;
 namespace Gatekeeper.Commands
 {
     [Group("ranking")]
-    public class RankingModule : ModuleBase<SocketCommandContext>
+    public class RankingModule : JasperBase
     {
         private readonly RankingService _ranking;
         private readonly DataService _data;
@@ -80,8 +78,7 @@ namespace Gatekeeper.Commands
         [Summary("Reload the list of applicant data into memory.")]
         public async Task Reload()
         {
-            var staffRole = Context.Guild.Roles.SingleOrDefault(r => r.Name == "Staff");
-            if (Context.Guild.GetUser(Context.User.Id).Roles.Contains(staffRole))
+            if (IsStaff())
             {
                 _data.Load("applicants", _ranking.Applicants);
                 await ReplyAsync("Applicant list reloaded.");

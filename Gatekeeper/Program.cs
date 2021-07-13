@@ -22,7 +22,7 @@ namespace Gatekeeper
 		private RoleService _manager;
 		private DiscordToken _token;
 
-		public static void Main(string[] args)
+		public static void Main()
 		=> new Program().MainAsync().GetAwaiter().GetResult();	
 
 		public async Task MainAsync()

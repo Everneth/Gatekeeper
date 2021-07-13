@@ -11,22 +11,22 @@ namespace Gatekeeper.Events
     public class UserJoinEvent
     {
         private readonly DiscordSocketClient _client;
-        private IServiceProvider _services;
 
         public UserJoinEvent(IServiceProvider services)
         {
             _client = services.GetRequiredService<DiscordSocketClient>();
-            _services = services;
             _client.UserJoined += JoinGuildEventAsync;
         }
 
         public async Task JoinGuildEventAsync(SocketGuildUser user)
         {
+            if (user.IsBot) return;
+            
             //var channel = await user.GetOrCreateDMChannelAsync();
             var socketChannel = user.Guild.Channels.SingleOrDefault(c => c.Name == "apply");
             var channel = user.Guild.GetTextChannel(socketChannel.Id);
 
-            if (playerExists(user))
+            if (PlayerExists(user))
             {
                 var role = user.Guild.Roles.SingleOrDefault(r => r.Name == "Citizen");
                 await user.AddRoleAsync(role);
@@ -47,9 +47,9 @@ namespace Gatekeeper.Events
             
             
         }
-        private bool playerExists(SocketGuildUser user)
+        private bool PlayerExists(SocketGuildUser user)
         {
-            string cs = String.Format("server=localhost;userid=admin_emi;password={0};database=admin_emi", "qEe4A3U2hw");
+            string cs = String.Format("server=localhost;userid=admin_emi;password={0};database=admin_emi", "lWw17l8V0W");
             EMIPlayer player = new EMIPlayer();
             using (var con = new MySqlConnection(cs))
             {

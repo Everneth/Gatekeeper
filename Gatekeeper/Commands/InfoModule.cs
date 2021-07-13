@@ -9,14 +9,14 @@ using System.Threading.Tasks;
 namespace Gatekeeper.Commands
 {
     [Group("info")]
-    public class InfoModule : ModuleBase<SocketCommandContext>
+    public class InfoModule : JasperBase
     {
         [Command("getid")]
         [Summary("Search users and return a list of IDs")]
         public async Task GetDiscordID(string info)
         {
             var users = Context.Guild.Users.Where(u => u.Username.Contains(info)).ToList();
-            string dummy = "lol";
+            
             if (users.Count == 0)
             {
                 await ReplyAsync("```asciidoc\n= NO RESULTS FOUND =```");

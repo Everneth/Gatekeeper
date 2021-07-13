@@ -4,18 +4,16 @@ using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Newtonsoft.Json;
-using System.IO;
 
 namespace Gatekeeper.Services
 {
     public class RankingService
     {
-        private DiscordSocketClient _client;
-        private IServiceProvider _services;
-        private List<Applicant> _applicants;
-        private ConfigService _config;
-        private DataService _data;
+        private readonly DiscordSocketClient _client;
+        private readonly IServiceProvider _services;
+        private readonly List<Applicant> _applicants;
+        private readonly ConfigService _config;
+        private readonly DataService _data;
 
         public List<Applicant> Applicants
         {
@@ -66,13 +64,13 @@ namespace Gatekeeper.Services
             // count 
 
             // validation
-            if(content.Length >= _config.Config.BaseCharReq && wordCount >= _config.Config.RequiredWords && hasActualWords(content))
+            if(content.Length >= _config.Config.BaseCharReq && wordCount >= _config.Config.RequiredWords && HasActualWords(content))
             {
                 Score(content, message.Author);
             }
         }
 
-        private bool hasActualWords(string content)
+        private bool HasActualWords(string content)
         {
             int numWords = 0;
             foreach (string word in content.Split(' '))

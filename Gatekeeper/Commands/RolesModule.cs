@@ -1,5 +1,6 @@
 ﻿using Discord.Commands;
 using Discord.WebSocket;
+using Gatekeeper.Commands;
 using Gatekeeper.Services;
 using Microsoft.Extensions.DependencyInjection;
 using System;
@@ -10,7 +11,7 @@ using System.Threading.Tasks;
 namespace Gatekeeper.Modules
 {
     [Group("role")]
-    public class RolesModule : ModuleBase<SocketCommandContext>
+    public class RolesModule : JasperBase
     {
         private readonly RoleService _manager;
 
@@ -91,12 +92,6 @@ namespace Gatekeeper.Modules
                 builder.Append($"**{joinableRoles}**");
             
             await ReplyAsync(builder.ToString());
-        }
-
-        private bool IsStaff()
-        {
-            var staffRole = Context.Guild.Roles.SingleOrDefault(x => x.Name == "Staff");
-            return Context.Guild.GetUser(Context.User.Id).Roles.Contains(staffRole);
         }
     }
 }

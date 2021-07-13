@@ -1,17 +1,13 @@
 ﻿using Discord.Commands;
-using Discord.WebSocket;
 using Gatekeeper.Services;
 using Microsoft.Extensions.DependencyInjection;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace Gatekeeper.Commands
 {
     [Group("config")]
-    public class ConfigModule : ModuleBase<SocketCommandContext>
+    public class ConfigModule : JasperBase
     {
         private readonly ConfigService _config;
         private readonly DataService _data;
@@ -23,7 +19,7 @@ namespace Gatekeeper.Commands
 
         [Command("basecharreq")]
         [Summary("Change the minimum characters required in each message in order to score.")]
-        public async Task setBaseCharReq(int amt)
+        public async Task SetBaseCharReq(int amt)
         {
             if (IsStaff())
             {
@@ -36,7 +32,7 @@ namespace Gatekeeper.Commands
 
         [Command("basescore")]
         [Summary("Change the initial score awarded for qualified messages.")]
-        public async Task setBaseScore(int amt)
+        public async Task SetBaseScore(int amt)
         {
             if (IsStaff())
             {
@@ -49,7 +45,7 @@ namespace Gatekeeper.Commands
 
         [Command("additionalcharscore")]
         [Summary("Change the bonus score awarded for additional characters in a message.")]
-        public async Task setAdditionalCharsScore(int amt)
+        public async Task SetAdditionalCharsScore(int amt)
         {
             if (IsStaff())
             {
@@ -62,7 +58,7 @@ namespace Gatekeeper.Commands
 
         [Command("promothreshold")]
         [Summary("Change the amount of points required for the applicant to reach in order to be promoted to Pending.")]
-        public async Task setPromoThreshold(int amt)
+        public async Task SetPromoThreshold(int amt)
         {
             if (IsStaff())
             {
@@ -74,7 +70,7 @@ namespace Gatekeeper.Commands
         }
         [Command("requiredwords")]
         [Summary("Change the amount of words required in a message for it to be scored.")]
-        public async Task setRequiredWords(int amt)
+        public async Task SetRequiredWords(int amt)
         {
             if (IsStaff())
             {
@@ -86,7 +82,7 @@ namespace Gatekeeper.Commands
         }
         [Command("show")]
         [Summary("Show the current values that Jasper uses in the formula to score messages.")]
-        public async Task showConfig()
+        public async Task ShowConfig()
         {
             if (IsStaff())
             {
@@ -105,15 +101,6 @@ namespace Gatekeeper.Commands
                     _config.Config.RequiredWords);
                 await ReplyAsync(msg);
             }
-        }
-
-        private bool IsStaff()
-        {
-            var staffRole = Context.Guild.Roles.SingleOrDefault(r => r.Name == "Staff");
-            if (Context.Guild.GetUser(Context.User.Id).Roles.Contains(staffRole))
-                return true;
-            else
-                return false;
         }
     }
 }

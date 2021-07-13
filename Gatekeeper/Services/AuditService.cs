@@ -31,7 +31,7 @@ namespace Gatekeeper.Services
             var socketGuildChannel = _client.GetGuild(177976693942779904).Channels.Where(x => x.Name == "admin-log").FirstOrDefault();
             var channel = socketGuildChannel.Guild.GetTextChannel(socketGuildChannel.Id);
 
-            await channel.SendMessageAsync($"{emote} `[{currentTime:hh\\:mm\\:ss}]` {audit}");
+            await channel.SendMessageAsync($"{emote} `[{currentTime:hh\\:mm\\:ss}]` {audit}", allowedMentions: AllowedMentions.None);
         }
 
         private async Task LogMessageDeleted(Cacheable<IMessage, ulong> cachedMessage, ISocketMessageChannel channel)
@@ -60,7 +60,7 @@ namespace Gatekeeper.Services
             builder.AppendLine($"Old content: {message}");
             builder.AppendLine($"New content: *{newMessage}*");
 
-            await SendAudit(builder.ToString(), ":computer:");
+            await SendAudit(builder.ToString(), ":pencil:");
         }
 
         private async Task LogGuildMemberUpdated(SocketGuildUser before, SocketGuildUser after)
@@ -83,7 +83,12 @@ namespace Gatekeeper.Services
                 }
 
                 // skip the @everyone role and sort from highest ranking role to lowest
-                builder.Append($"Current roles: `{string.Join(", ", after.Roles.Skip(1).OrderByDescending(x => x.Position))}`");
+                builder.Append($"Current roles: ");
+
+                if (after.Roles.Count > 0)
+                {
+                    builder.Append($"`{string.Join(", ", after.Roles.Skip(1).OrderByDescending(x => x.Position))}`");
+                }
             }
             else if (before.Nickname != null || after.Nickname != null)
             {
@@ -129,12 +134,12 @@ namespace Gatekeeper.Services
 
         private async Task LogUserJoined(SocketGuildUser user)
         {
-            await SendAudit($"**{user}** joined the server.", ":door:");
+            await SendAudit($"**{user}** joined the server. Total Guild Members: **{user.Guild.MemberCount}**", ":door:");
         }
 
         private async Task LogUserLeft(SocketGuildUser user)
         {
-            await SendAudit($"**{user}** left the server.", ":door:");
+            await SendAudit($"**{user}** left the server. Total Guild Members: **{user.Guild.MemberCount}**", ":door:");
         }
     }
 }
