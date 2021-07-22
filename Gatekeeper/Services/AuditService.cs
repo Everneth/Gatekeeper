@@ -2,6 +2,7 @@
 using Discord.WebSocket;
 using Microsoft.Extensions.DependencyInjection;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -11,6 +12,8 @@ namespace Gatekeeper.Services
     public class AuditService
     {
         private readonly DiscordSocketClient _client;
+        private readonly DataService _data;
+        public List<ulong> IgnoredChannelIds { get; }
 
         public AuditService(IServiceProvider services)
         {
@@ -23,12 +26,15 @@ namespace Gatekeeper.Services
             _client.UserUnbanned += LogUserPardoned;
             _client.UserJoined += LogUserJoined;
             _client.UserLeft += LogUserLeft;
+
+            _data = services.GetRequiredService<DataService>();
+            IgnoredChannelIds = _data.Load("ignored_channels", IgnoredChannelIds);
         }
 
         private async Task SendAudit(string audit, string emote)
         {
             TimeSpan currentTime = DateTime.Now.TimeOfDay;
-            var socketGuildChannel = _client.GetGuild(177976693942779904).Channels.Where(x => x.Name == "admin-log").FirstOrDefault();
+            var socketGuildChannel = _client.GetGuild(735973033021276181).Channels.Where(x => x.Name == "admin-log").FirstOrDefault();
             var channel = socketGuildChannel.Guild.GetTextChannel(socketGuildChannel.Id);
 
             await channel.SendMessageAsync($"{emote} `[{currentTime:hh\\:mm\\:ss}]` {audit}", allowedMentions: AllowedMentions.None);
@@ -36,8 +42,7 @@ namespace Gatekeeper.Services
 
         private async Task LogMessageDeleted(Cacheable<IMessage, ulong> cachedMessage, ISocketMessageChannel channel)
         {
-            var socketGuildChannel = _client.GetGuild(177976693942779904).Channels.Where(x => x.Name == "admin-log").FirstOrDefault();
-            if (cachedMessage.Value == null || cachedMessage.Value.Channel.Id == socketGuildChannel.Id) return;
+            if (cachedMessage.Value == null || IgnoredChannelIds.Contains(cachedMessage.Value.Channel.Id)) return;
 
             IMessage message = cachedMessage.Value;
             string audit = $"**{message.Author}'s** message in <#{message.Channel.Id}> was deleted. Content: \n{message.Content}";
@@ -47,8 +52,7 @@ namespace Gatekeeper.Services
 
         private async Task LogMessageUpdated(Cacheable<IMessage, ulong> cachedMessage, SocketMessage newMessage, ISocketMessageChannel channel)
         {
-            var socketGuildChannel = _client.GetGuild(177976693942779904).Channels.Where(x => x.Name == "admin-log").FirstOrDefault();
-            if (cachedMessage.Value == null || cachedMessage.Value.Channel.Id == socketGuildChannel.Id 
+            if (cachedMessage.Value == null || IgnoredChannelIds.Contains(cachedMessage.Value.Channel.Id)
                 || cachedMessage.Value.Content.Equals(newMessage.Content)) return;
 
             if (newMessage.Equals($"*{cachedMessage}*")) return;
