@@ -69,9 +69,6 @@ namespace Gatekeeper
                 context: context,
                 argPos: argPos,
                 services: _services);
-
-             if (!result.IsSuccess)
-             await context.Channel.SendMessageAsync(result.ErrorReason);
         }
 
         public async Task CommandExecutedAsync(Optional<CommandInfo> command, ICommandContext context, IResult result)
@@ -85,7 +82,7 @@ namespace Gatekeeper
                 return;
 
             // the command failed, let's notify the user that something happened.
-            await context.Channel.SendMessageAsync($"error: {result}");
+            await context.Channel.SendMessageAsync(result.ToString());
         }
     }
 }
