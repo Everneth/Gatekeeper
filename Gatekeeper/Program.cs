@@ -40,7 +40,7 @@ namespace Gatekeeper
 
 				_client.Log += Log;
 
-				await _client.SetGameAsync("everyone", null, ActivityType.Watching);
+				await _client.SetGameAsync("$.help", null, ActivityType.Listening);
 
 				DiscordToken token = _data.Load("token", _token);
 
