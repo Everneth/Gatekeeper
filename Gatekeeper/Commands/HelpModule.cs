@@ -37,12 +37,7 @@ namespace Gatekeeper.Commands
                     Text = "Bot created by @Faceman and @Riki.",
                     IconUrl = Context.Guild.IconUrl
                 }
-            }
-            .AddField(new EmbedFieldBuilder()
-            {
-                Name = "$.help",
-                Value = "List all commands available"
-            });
+            };
             List<CommandInfo> commands = _commands.Commands.ToList();
             foreach (CommandInfo command in commands)
             {
@@ -52,12 +47,11 @@ namespace Gatekeeper.Commands
 
                 if (!command.Module.Name.Equals("HelpModule"))
                 {
-                    builder.Append($"$.{command.Module.Name} ");
-                    builder.Append($"{command.Name} ");
+                    builder.Append($"$.{command.Module.Name} {command.Name} ");
 
-                    if (command.Parameters.Count > 0)
+                    foreach (ParameterInfo parameter in command.Parameters)
                     {
-                        builder.Append($"<{string.Join(" ", command.Parameters)}>");
+                        builder.Append($"[{parameter.Name}]");
                     }
 
                     eb.AddField(builder.ToString(), embedFieldText);

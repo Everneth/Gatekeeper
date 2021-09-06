@@ -19,65 +19,65 @@ namespace Gatekeeper.Commands
 
         [Command("basecharreq")]
         [Summary("Change the minimum characters required in each message in order to score.")]
-        public async Task SetBaseCharReq(int amt)
+        public async Task SetBaseCharReq(int amount)
         {
             if (IsStaff())
             {
                 int oldAmt = _config.Config.BaseCharReq;
-                _config.Config.BaseCharReq = amt;
+                _config.Config.BaseCharReq = amount;
                 _data.Save("config", _config.Config);
-                await ReplyAsync("Base characters required updated to **" + amt + "**! OLD: " + oldAmt);
+                await ReplyAsync("Base characters required updated to **" + amount + "**! OLD: " + oldAmt);
             }
         }
 
         [Command("basescore")]
         [Summary("Change the initial score awarded for qualified messages.")]
-        public async Task SetBaseScore(int amt)
+        public async Task SetBaseScore(int amount)
         {
             if (IsStaff())
             {
                 int oldAmt = _config.Config.BaseScore;
-                _config.Config.BaseScore = amt;
+                _config.Config.BaseScore = amount;
                 _data.Save("config", _config.Config);
-                await ReplyAsync("Base score for qualified mesages updated to **" + amt + "**! OLD: " + oldAmt);
+                await ReplyAsync("Base score for qualified mesages updated to **" + amount + "**! OLD: " + oldAmt);
             }
         }
 
         [Command("additionalcharscore")]
         [Summary("Change the bonus score awarded for additional characters in a message.")]
-        public async Task SetAdditionalCharsScore(int amt)
+        public async Task SetAdditionalCharsScore(int amount)
         {
             if (IsStaff())
             {
                 int oldAmt = _config.Config.AdditionalCharsScore;
-                _config.Config.AdditionalCharsScore = amt;
+                _config.Config.AdditionalCharsScore = amount;
                 _data.Save("config", _config.Config);
-                await ReplyAsync("Score for additional characters past base updated to **" + amt + "**! OLD: " + oldAmt);
+                await ReplyAsync("Score for additional characters past base updated to **" + amount + "**! OLD: " + oldAmt);
             }
         }
 
         [Command("promothreshold")]
         [Summary("Change the amount of points required for the applicant to reach in order to be promoted to Pending.")]
-        public async Task SetPromoThreshold(int amt)
+        public async Task SetPromoThreshold(int amount)
         {
             if (IsStaff())
             {
                 int oldAmt = _config.Config.PromoThreshold;
-                _config.Config.PromoThreshold = amt;
+                _config.Config.PromoThreshold = amount;
                 _data.Save("config", _config.Config);
-                await ReplyAsync("Score threshold for promotion to pending updated to **" + amt + "**! OLD: " + oldAmt);
+                await ReplyAsync("Score threshold for promotion to pending updated to **" + amount + "**! OLD: " + oldAmt);
             }
         }
         [Command("requiredwords")]
         [Summary("Change the amount of words required in a message for it to be scored.")]
-        public async Task SetRequiredWords(int amt)
+        public async Task SetRequiredWords(int amount)
         {
             if (IsStaff())
             {
                 int oldAmt = _config.Config.RequiredWords;
-                _config.Config.RequiredWords = amt;
+                _config.Config.RequiredWords = amount;
                 _data.Save("config", _config.Config);
-                await ReplyAsync("Required amount of words to score a message updated to **" + amt + "**! OLD: " + oldAmt);
+                await ReplyAsync("Required amount of words to score a message updated to **" + amount + "**! OLD: " + oldAmt);
             }
         }
         [Command("show")]
