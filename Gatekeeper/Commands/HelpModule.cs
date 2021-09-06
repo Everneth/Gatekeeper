@@ -29,7 +29,7 @@ namespace Gatekeeper.Commands
                 },
                 Color = new Color(52, 85, 235),
                 Title = "Jasper's Commands Help",
-                Description = "Change the configuration of Jasper and view players scores.",
+                Description = "This is a complete list of all the commands you can use.",
                 Footer = new EmbedFooterBuilder()
                 {
                     Text = "Bot created by @Faceman and @Riki.",
@@ -37,25 +37,29 @@ namespace Gatekeeper.Commands
                 }
             };
 
-            foreach (CommandInfo command in _commands.Commands)
+            foreach (var module in _commands.Modules)
             {
-                // Get the command Summary attribute information
-                string embedFieldText = command.Summary ?? "No description available\n";
-                StringBuilder builder = new StringBuilder();
+                if (module.Name.Equals("HelpModule")) continue;
 
-                if (!command.Module.Name.Equals("HelpModule"))
+                foreach(var command in module.Commands)
                 {
-                    builder.Append($"$.{command.Module.Name} {command.Name} ");
+                    // Get the command Summary attribute information
+                    string embedFieldText = command.Summary ?? "No description available\n";
+                    StringBuilder builder = new StringBuilder();
 
-                    foreach (ParameterInfo parameter in command.Parameters)
+                    var result = await command.CheckPreconditionsAsync(Context);
+                    if (result.IsSuccess)
                     {
-                        builder.Append($"[{parameter.Name}]");
-                    }
+                        builder.Append($"$.{module.Name} {command.Name} ");
 
-                    eb.AddField(builder.ToString(), embedFieldText);
+                        foreach (var parameter in command.Parameters)
+                            builder.Append($"[{parameter.Name}]");
+
+                        eb.AddField(builder.ToString(), embedFieldText);
+                    }
                 }
             }
-            
+
             await ReplyAsync(embed: eb.Build());
         }
     }
