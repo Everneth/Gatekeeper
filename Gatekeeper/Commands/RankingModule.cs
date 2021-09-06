@@ -1,4 +1,5 @@
 ﻿using Discord.Commands;
+using Gatekeeper.Preconditions;
 using Gatekeeper.Services;
 using Microsoft.Extensions.DependencyInjection;
 using System;
@@ -9,7 +10,8 @@ using System.Threading.Tasks;
 namespace Gatekeeper.Commands
 {
     [Group("ranking")]
-    public class RankingModule : JasperBase
+    [RequireRole("High Council (Admin)")]
+    public class RankingModule : ModuleBase<SocketCommandContext>
     {
         private readonly RankingService _ranking;
         private readonly DataService _data;
@@ -23,28 +25,23 @@ namespace Gatekeeper.Commands
         [Summary("Pull up a single applicant's score.")]
         public async Task CheckScore(ulong id = 0)
         {
-            var role = Context.Guild.Roles.SingleOrDefault(r => r.Name == "Staff");
-            if (Context.Guild.GetUser(Context.User.Id).Roles.Contains(role))
+            if (id != 0)
             {
-                if (id != 0)
+                var applicant = _ranking.Applicants.SingleOrDefault(u => u.DiscordId == id);
+                if(applicant == null)
                 {
-                    var applicant = _ranking.Applicants.SingleOrDefault(u => u.DiscordId == id);
-                    if(applicant == null)
-                    {
-                        await ReplyAsync("User not found!");
-
-                    }
-                    else
-                    {
-                        await ReplyAsync(Context.Guild.GetUser(id).Mention + " has " + applicant.Score + " points.");
-                    }
+                    await ReplyAsync("User not found!");
 
                 }
                 else
                 {
-                    
-                    await ReplyAsync("Please supply a Discord ID. [$.ranking score <id>]");
+                    await ReplyAsync(Context.Guild.GetUser(id).Mention + " has " + applicant.Score + " points.");
                 }
+
+            }
+            else
+            {
+                await ReplyAsync("Please supply a Discord ID. [$.ranking score <id>]");
             }
         }
 
@@ -66,23 +63,15 @@ namespace Gatekeeper.Commands
         [Summary("Clean out orphaned data in the ranking cache. Use this command if you suspect tracking has stopped working or if several applicants leave the discord.")]
         public async Task CleanRankData()
         {
-            
-            var staffRole = Context.Guild.Roles.SingleOrDefault(r => r.Name == "Staff");
-            if (Context.Guild.GetUser(Context.User.Id).Roles.Contains(staffRole))
-            {
-                await ReplyAsync(_ranking.Clean(Context.Guild));
-            }
+            await ReplyAsync(_ranking.Clean(Context.Guild));
         }
 
         [Command("reload")]
         [Summary("Reload the list of applicant data into memory.")]
         public async Task Reload()
         {
-            if (IsStaff())
-            {
-                _data.Load("applicants", _ranking.Applicants);
-                await ReplyAsync("Applicant list reloaded.");
-            }
+            _data.Load("applicants", _ranking.Applicants);
+            await ReplyAsync("Applicant list reloaded.");
         }
     }
 }

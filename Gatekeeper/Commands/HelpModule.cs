@@ -2,14 +2,12 @@
 using Discord.Commands;
 using Microsoft.Extensions.DependencyInjection;
 using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
 namespace Gatekeeper.Commands
 {
-    public class HelpModule : JasperBase
+    public class HelpModule : ModuleBase<SocketCommandContext>
     {
         private readonly CommandService _commands;
         
@@ -38,8 +36,8 @@ namespace Gatekeeper.Commands
                     IconUrl = Context.Guild.IconUrl
                 }
             };
-            List<CommandInfo> commands = _commands.Commands.ToList();
-            foreach (CommandInfo command in commands)
+
+            foreach (CommandInfo command in _commands.Commands)
             {
                 // Get the command Summary attribute information
                 string embedFieldText = command.Summary ?? "No description available\n";

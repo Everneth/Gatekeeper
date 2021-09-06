@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 namespace Gatekeeper.Commands
 {
     [Group("info")]
-    public class InfoModule : JasperBase
+    public class InfoModule : ModuleBase<SocketCommandContext>
     {
         [Command("getid")]
         [Summary("Search users and return a list of IDs")]

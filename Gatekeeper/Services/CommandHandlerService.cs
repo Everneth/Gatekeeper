@@ -75,7 +75,15 @@ namespace Gatekeeper
                 return;
 
             // the command failed, let's notify the user that something happened.
-            await context.Channel.SendMessageAsync(result.ToString());
+            switch (result.Error)
+            {
+                case CommandError.UnmetPrecondition:
+                    await context.Channel.SendMessageAsync(result.ErrorReason);
+                    break;
+                case CommandError.BadArgCount:
+                    await context.Channel.SendMessageAsync(result.ErrorReason);
+                    break;
+            }
         }
     }
 }

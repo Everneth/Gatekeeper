@@ -1,19 +1,19 @@
 ﻿using Discord.Commands;
 using Gatekeeper.Helpers;
+using Gatekeeper.Preconditions;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
 namespace Gatekeeper.Commands
 {
     [Group("jar")]
-    public class PaperJarModule : JasperBase
+    [RequireRole("High Council (Admin)")]
+    public class PaperJarModule : ModuleBase<SocketCommandContext>
     {
         [Command("update")]
         [Summary("Takes a specified minecraft version and updates the main/test server jars to the latest build under that version")]
         public async Task UpdateJar(string minecraftVersion)
         {
-            if (!IsAdmin()) return;
-
             string pattern = @"1.\d+.?\d+";
             if (Regex.IsMatch(minecraftVersion, pattern))
             {

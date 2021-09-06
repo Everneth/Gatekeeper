@@ -1,16 +1,16 @@
 ﻿using Discord.Commands;
 using Discord.WebSocket;
+using Gatekeeper.Preconditions;
 using Gatekeeper.Services;
 using Microsoft.Extensions.DependencyInjection;
 using System;
-using System.Collections.Generic;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace Gatekeeper.Commands
 {
     [Group("audit")]
-    public class AuditModule : JasperBase
+    [RequireRole("Staff")]
+    public class AuditModule : ModuleBase<SocketCommandContext>
     {
         private readonly AuditService _audit;
         private readonly DataService _data;
@@ -28,7 +28,7 @@ namespace Gatekeeper.Commands
             {
                 channel = Context.Channel;
             }
-            if (!IsAdmin() || _audit.IgnoredChannelIds.Contains(channel.Id)) return;
+            if (_audit.IgnoredChannelIds.Contains(channel.Id)) return;
 
             _audit.IgnoredChannelIds.Add(channel.Id);
             _data.Save("ignored_channels", _audit.IgnoredChannelIds);
@@ -42,7 +42,7 @@ namespace Gatekeeper.Commands
             {
                 channel = Context.Channel;
             }
-            if (!IsAdmin() || !_audit.IgnoredChannelIds.Contains(channel.Id)) return;
+            if (!_audit.IgnoredChannelIds.Contains(channel.Id)) return;
 
             _audit.IgnoredChannelIds.Remove(channel.Id);
             _data.Save("ignored_channels", _audit.IgnoredChannelIds);
