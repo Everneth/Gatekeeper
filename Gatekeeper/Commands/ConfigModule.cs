@@ -21,7 +21,7 @@ namespace Gatekeeper.Commands
         [Summary("Change the minimum characters required in each message in order to score.")]
         public async Task SetBaseCharReq(int amount)
         {
-            if (IsStaff())
+            if (IsAdmin())
             {
                 int oldAmt = _config.Config.BaseCharReq;
                 _config.Config.BaseCharReq = amount;
@@ -34,7 +34,7 @@ namespace Gatekeeper.Commands
         [Summary("Change the initial score awarded for qualified messages.")]
         public async Task SetBaseScore(int amount)
         {
-            if (IsStaff())
+            if (IsAdmin())
             {
                 int oldAmt = _config.Config.BaseScore;
                 _config.Config.BaseScore = amount;
@@ -47,7 +47,7 @@ namespace Gatekeeper.Commands
         [Summary("Change the bonus score awarded for additional characters in a message.")]
         public async Task SetAdditionalCharsScore(int amount)
         {
-            if (IsStaff())
+            if (IsAdmin())
             {
                 int oldAmt = _config.Config.AdditionalCharsScore;
                 _config.Config.AdditionalCharsScore = amount;
@@ -60,7 +60,7 @@ namespace Gatekeeper.Commands
         [Summary("Change the amount of points required for the applicant to reach in order to be promoted to Pending.")]
         public async Task SetPromoThreshold(int amount)
         {
-            if (IsStaff())
+            if (IsAdmin())
             {
                 int oldAmt = _config.Config.PromoThreshold;
                 _config.Config.PromoThreshold = amount;
@@ -72,7 +72,7 @@ namespace Gatekeeper.Commands
         [Summary("Change the amount of words required in a message for it to be scored.")]
         public async Task SetRequiredWords(int amount)
         {
-            if (IsStaff())
+            if (IsAdmin())
             {
                 int oldAmt = _config.Config.RequiredWords;
                 _config.Config.RequiredWords = amount;
@@ -84,7 +84,7 @@ namespace Gatekeeper.Commands
         [Summary("Show the current values that Jasper uses in the formula to score messages.")]
         public async Task ShowConfig()
         {
-            if (IsStaff())
+            if (IsAdmin())
             {
 
                 string msg = String.Format("```asciidoc\n" +

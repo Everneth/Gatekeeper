@@ -12,6 +12,8 @@ namespace Gatekeeper.Commands
         [Summary("Takes a specified minecraft version and updates the main/test server jars to the latest build under that version")]
         public async Task UpdateJar(string minecraftVersion)
         {
+            if (!IsAdmin()) return;
+
             string pattern = @"1.\d+.?\d+";
             if (Regex.IsMatch(minecraftVersion, pattern))
             {

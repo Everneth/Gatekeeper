@@ -28,7 +28,7 @@ namespace Gatekeeper.Commands
             {
                 channel = Context.Channel;
             }
-            if (_audit.IgnoredChannelIds.Contains(channel.Id)) return;
+            if (!IsAdmin() || _audit.IgnoredChannelIds.Contains(channel.Id)) return;
 
             _audit.IgnoredChannelIds.Add(channel.Id);
             _data.Save("ignored_channels", _audit.IgnoredChannelIds);
@@ -42,7 +42,7 @@ namespace Gatekeeper.Commands
             {
                 channel = Context.Channel;
             }
-            if (!_audit.IgnoredChannelIds.Contains(channel.Id)) return;
+            if (!IsAdmin() || !_audit.IgnoredChannelIds.Contains(channel.Id)) return;
 
             _audit.IgnoredChannelIds.Remove(channel.Id);
             _data.Save("ignored_channels", _audit.IgnoredChannelIds);
