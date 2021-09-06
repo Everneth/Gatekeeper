@@ -34,26 +34,19 @@ namespace Gatekeeper
         {
             // Don't process the command if it was a system message
             var message = messageParam as SocketUserMessage;
-            if (message == null) return;
+            if (message == null || message.Author == null) return;
 
             // Create a number to track where the prefix ends and the command begins
             int argPos = 0;
 
             var user = message.Author as SocketGuildUser;
 
-            bool IsApplicant = false;
-
             foreach(var role in user.Roles)
             {
                 if(role.Name.Equals("Applicant"))
                 {
-                    IsApplicant = true;
+                    _services.GetRequiredService<RankingService>().Process(message);
                 }
-            }
-
-            if(IsApplicant)
-            {
-                _services.GetRequiredService<RankingService>().Process(message);
             }
 
             // Determine if the message is a command based on the prefix and make sure no bots trigger commands
