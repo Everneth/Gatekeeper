@@ -47,13 +47,14 @@ namespace Gatekeeper.Commands
                     string embedFieldText = command.Summary ?? "No description available\n";
                     StringBuilder builder = new StringBuilder();
 
+                    // If command sender is able to run this command, append it to the embed with all its parameters
                     var result = await command.CheckPreconditionsAsync(Context);
                     if (result.IsSuccess)
                     {
                         builder.Append($"$.{module.Name} {command.Name} ");
 
                         foreach (var parameter in command.Parameters)
-                            builder.Append($"[{parameter.Name}]");
+                            builder.Append($"[{parameter.Name}] ");
 
                         eb.AddField(builder.ToString(), embedFieldText);
                     }
