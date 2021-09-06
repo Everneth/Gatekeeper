@@ -39,7 +39,7 @@ namespace Gatekeeper.Commands
 
             foreach (var module in _commands.Modules)
             {
-                if (module.Name.Equals("HelpModule")) continue;
+                if (module.Name.Equals(this.GetType().Name)) continue;
 
                 foreach(var command in module.Commands)
                 {
