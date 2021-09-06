@@ -1,6 +1,7 @@
 ﻿using Discord.Commands;
 using Discord.WebSocket;
 using Gatekeeper.Commands;
+using Gatekeeper.Preconditions;
 using Gatekeeper.Services;
 using Microsoft.Extensions.DependencyInjection;
 using System;
@@ -11,7 +12,7 @@ using System.Threading.Tasks;
 namespace Gatekeeper.Modules
 {
     [Group("role")]
-    public class RolesModule : JasperBase
+    public class RolesModule : ModuleBase<SocketCommandContext>
     {
         private readonly RoleService _manager;
 
@@ -21,30 +22,26 @@ namespace Gatekeeper.Modules
         }
 
         [Command("add")]
+        [RequireRole("Staff")]
         [Summary("Add a role to the joinable whitelist.")]
         private async Task AddRoleAsync([Remainder] string roleName)
         {
-            if (IsStaff())
-            {
-                if (_manager.AddRole(roleName, Context.Guild))
-                    await ReplyAsync($"**{roleName}** added to the whitelist.");
-                else
-                    await ReplyAsync($"**{roleName}** could not be added to the whitelist.");
+            if (_manager.AddRole(roleName, Context.Guild))
+                await ReplyAsync($"**{roleName}** added to the whitelist.");
+            else
+                await ReplyAsync($"**{roleName}** could not be added to the whitelist.");
 
-            }
         }
 
         [Command("remove")]
+        [RequireRole("Staff")]
         [Summary("Remove a role from the joinable whitelist.")]
         private async Task RemoveRoleAsync([Remainder] string roleName)
         {
-            if (IsStaff())
-            {
-                if (_manager.RemoveRole(roleName, Context.Guild))
-                    await ReplyAsync($"**{roleName}** was removed from the whitelist.");
-                else
-                    await ReplyAsync($"**{roleName}** is not on the whitelist.");
-            }
+            if (_manager.RemoveRole(roleName, Context.Guild))
+                await ReplyAsync($"**{roleName}** was removed from the whitelist.");
+            else
+                await ReplyAsync($"**{roleName}** is not on the whitelist.");
         }
 
         [Command("join")]

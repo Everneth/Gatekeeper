@@ -2,14 +2,12 @@
 using Discord.Commands;
 using Microsoft.Extensions.DependencyInjection;
 using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
 namespace Gatekeeper.Commands
 {
-    public class HelpModule : JasperBase
+    public class HelpModule : ModuleBase<SocketCommandContext>
     {
         private readonly CommandService _commands;
         
@@ -31,39 +29,38 @@ namespace Gatekeeper.Commands
                 },
                 Color = new Color(52, 85, 235),
                 Title = "Jasper's Commands Help",
-                Description = "Change the configuration of Jasper and view players scores.",
+                Description = "This is a complete list of all the commands you can use.",
                 Footer = new EmbedFooterBuilder()
                 {
                     Text = "Bot created by @Faceman and @Riki.",
                     IconUrl = Context.Guild.IconUrl
                 }
-            }
-            .AddField(new EmbedFieldBuilder()
-            {
-                Name = "$.help",
-                Value = "List all commands available"
-            });
-            List<CommandInfo> commands = _commands.Commands.ToList();
-            foreach (CommandInfo command in commands)
-            {
-                // Get the command Summary attribute information
-                string embedFieldText = command.Summary ?? "No description available\n";
-                StringBuilder builder = new StringBuilder();
+            };
 
-                if (!command.Module.Name.Equals("HelpModule"))
+            foreach (var module in _commands.Modules)
+            {
+                if (module.Name.Equals(this.GetType().Name)) continue;
+
+                foreach(var command in module.Commands)
                 {
-                    builder.Append($"$.{command.Module.Name} ");
-                    builder.Append($"{command.Name} ");
+                    // Get the command Summary attribute information
+                    string embedFieldText = command.Summary ?? "No description available\n";
+                    StringBuilder builder = new StringBuilder();
 
-                    if (command.Parameters.Count > 0)
+                    // If command sender is able to run this command, append it to the embed with all its parameters
+                    var result = await command.CheckPreconditionsAsync(Context);
+                    if (result.IsSuccess)
                     {
-                        builder.Append($"<{string.Join(" ", command.Parameters)}>");
-                    }
+                        builder.Append($"$.{module.Name} {command.Name} ");
 
-                    eb.AddField(builder.ToString(), embedFieldText);
+                        foreach (var parameter in command.Parameters)
+                            builder.Append($"[{parameter.Name}] ");
+
+                        eb.AddField(builder.ToString(), embedFieldText);
+                    }
                 }
             }
-            
+
             await ReplyAsync(embed: eb.Build());
         }
     }
