@@ -9,7 +9,7 @@ namespace Gatekeeper.Services
     public class RoleService
     {
         private readonly DataService _data;
-        private readonly HashSet<string> joinableRoles;
+        private readonly HashSet<SocketRole> joinableRoles;
 
         public RoleService(IServiceProvider services)
         {
@@ -17,38 +17,30 @@ namespace Gatekeeper.Services
             joinableRoles = _data.Load("roles", joinableRoles);
         }
 
-        public bool AddRole(string roleName, SocketGuild guild)
+        public bool AddRole(SocketRole role, SocketGuild guild)
         {
-            bool wasAdded = false;
-            if (guild.Roles.SingleOrDefault(x => x.Name == roleName) != null)
-            {
-                wasAdded = joinableRoles.Add(roleName);
-                _data.Save("roles", joinableRoles);
-            }
+            bool wasAdded = joinableRoles.Add(role);
+            _data.Save("roles", joinableRoles);
 
             return wasAdded;
         }
 
-        public bool RemoveRole(string roleName, SocketGuild guild)
+        public bool RemoveRole(SocketRole role, SocketGuild guild)
         {
-            bool wasRemoved = false;
-            if (guild.Roles.SingleOrDefault(x => x.Name == roleName) != null)
-            {
-                wasRemoved = joinableRoles.Remove(roleName);
-                _data.Save("roles", joinableRoles);
-            }
+            bool wasRemoved = joinableRoles.Remove(role);
+            _data.Save("roles", joinableRoles);
 
             return wasRemoved;
         }
 
-        public bool IsJoinable(string role)
+        public bool IsJoinable(SocketRole role)
         {
             return joinableRoles.Contains(role);
         }
 
         public string GetJoinableRoles()
         {
-            return string.Join(", ", joinableRoles);
+            return string.Join(" | ", joinableRoles);
         }
     }
 }

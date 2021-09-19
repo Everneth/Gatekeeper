@@ -24,56 +24,54 @@ namespace Gatekeeper.Modules
         [Command("add")]
         [RequireRole("Staff")]
         [Summary("Add a role to the joinable whitelist.")]
-        private async Task AddRoleAsync([Remainder] string roleName)
+        private async Task AddRoleAsync(SocketRole role)
         {
-            if (_manager.AddRole(roleName, Context.Guild))
-                await ReplyAsync($"**{roleName}** added to the whitelist.");
+            if (_manager.AddRole(role, Context.Guild))
+                await ReplyAsync($"**{role}** added to the whitelist.");
             else
-                await ReplyAsync($"**{roleName}** could not be added to the whitelist.");
+                await ReplyAsync($"**{role}** could not be added to the whitelist.");
 
         }
 
         [Command("remove")]
         [RequireRole("Staff")]
         [Summary("Remove a role from the joinable whitelist.")]
-        private async Task RemoveRoleAsync([Remainder] string roleName)
+        private async Task RemoveRoleAsync(SocketRole role)
         {
-            if (_manager.RemoveRole(roleName, Context.Guild))
-                await ReplyAsync($"**{roleName}** was removed from the whitelist.");
+            if (_manager.RemoveRole(role, Context.Guild))
+                await ReplyAsync($"**{role}** was removed from the whitelist.");
             else
-                await ReplyAsync($"**{roleName}** is not on the whitelist.");
+                await ReplyAsync($"**{role}** is not on the whitelist.");
         }
 
         [Command("join")]
         [Summary("Join a role on the joinable whitelist.")]
-        private async Task JoinRoleAsync([Remainder] string roleName)
+        private async Task JoinRoleAsync(SocketRole role)
         {
             SocketGuildUser user = Context.Guild.GetUser(Context.User.Id);
-            SocketRole role = Context.Guild.Roles.Where(x => x.Name == roleName).FirstOrDefault();
-            if (_manager.IsJoinable(roleName))
+            if (_manager.IsJoinable(role))
             {
                 if (!user.Roles.Contains(role))
                 {
                     await user.AddRoleAsync(role);
-                    await ReplyAsync($"{user.Mention} Gave you the **{role}** role.");
+                    await ReplyAsync($"{user.Mention}, gave you the **{role.Name}** role.");
                 }
             }
             else
             {
-                await ReplyAsync($"{Context.User.Mention} That role is not joinable.");
+                await ReplyAsync($"{Context.User.Mention}, that role is not joinable.");
             }
         }
 
         [Command("leave")]
         [Summary("Leave a role on the joinable whitelist.")]
-        private async Task LeaveRoleAsync([Remainder] string roleName)
+        private async Task LeaveRoleAsync(SocketRole role)
         {
-            SocketRole role = Context.Guild.Roles.Where(x => x.Name == roleName).FirstOrDefault();
-            SocketGuildUser user = Context.Guild.GetUser(Context.User.Id);
-            if (_manager.IsJoinable(roleName) && user.Roles.Contains(role))
+            SocketGuildUser user = Context.User as SocketGuildUser;
+            if (_manager.IsJoinable(role) && user.Roles.Contains(role))
             {
                 await user.RemoveRoleAsync(role);
-                await ReplyAsync($"{user.Mention} Removed the **{role}** role.");
+                await ReplyAsync($"{user.Mention}, removed the **{role}** role.");
             }
         }
 
