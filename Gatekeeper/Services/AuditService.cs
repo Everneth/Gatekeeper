@@ -34,7 +34,7 @@ namespace Gatekeeper.Services
         private async Task SendAudit(string audit, string emote)
         {
             TimeSpan currentTime = DateTime.Now.TimeOfDay;
-            var socketGuildChannel = _client.GetGuild(177976693942779904).Channels.Where(x => x.Name == "admin-log").FirstOrDefault();
+            var socketGuildChannel = _client.GetGuild(177976693942779904).Channels.FirstOrDefault(x => x.Name.Equals("admin-log"));
             var channel = socketGuildChannel.Guild.GetTextChannel(socketGuildChannel.Id);
 
             await channel.SendMessageAsync($"{emote} `[{currentTime:hh\\:mm\\:ss}]` {audit}", allowedMentions: AllowedMentions.None);
@@ -42,27 +42,27 @@ namespace Gatekeeper.Services
 
         private async Task LogMessageDeleted(Cacheable<IMessage, ulong> cachedMessage, ISocketMessageChannel channel)
         {
-            if (cachedMessage.Value == null || IgnoredChannelIds.Contains(cachedMessage.Value.Channel.Id)) return;
+            var message = await cachedMessage.GetOrDownloadAsync();
+            if (IgnoredChannelIds.Contains(channel.Id)) return;
 
-            IMessage message = cachedMessage.Value;
-            string audit = $"**{message.Author}'s** message in <#{message.Channel.Id}> was deleted. Content: \n{message.Content}";
+            string audit = $"**{message.Author}'s** message in <#{channel.Id}> was deleted. Content: \n{message.Content}";
 
             await SendAudit(audit, ":wastebasket:");
         }
 
         private async Task LogMessageUpdated(Cacheable<IMessage, ulong> cachedMessage, SocketMessage newMessage, ISocketMessageChannel channel)
         {
-            if (cachedMessage.Value == null || IgnoredChannelIds.Contains(cachedMessage.Value.Channel.Id)
-                || cachedMessage.Value.Content.Equals(newMessage.Content)) return;
+            var message = await cachedMessage.GetOrDownloadAsync();
+            if (IgnoredChannelIds.Contains(channel.Id) ||
+                message.Content.Equals(newMessage.Content)) return;
 
             if (newMessage.Equals($"*{cachedMessage}*")) return;
             
-            IMessage message = cachedMessage.Value;
             StringBuilder builder = new StringBuilder();
 
-            builder.AppendLine($"**{message.Author}'s** message in <#{message.Channel.Id}> was updated.");
+            builder.AppendLine($"**{message.Author}'s** message in <#{channel.Id}> was updated.");
             builder.AppendLine($"Old content: {message}");
-            builder.AppendLine($"New content: *{newMessage}*");
+            builder.AppendLine($"New content: {newMessage}");
 
             await SendAudit(builder.ToString(), ":pencil:");
         }
