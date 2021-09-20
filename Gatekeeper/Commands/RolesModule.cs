@@ -82,7 +82,7 @@ namespace Gatekeeper.Modules
             StringBuilder builder = new StringBuilder();
             builder.Append($"Here are the joinable roles: ");
 
-            string joinableRoles = _manager.GetJoinableRoles();
+            string joinableRoles = _manager.GetJoinableRoles(Context.Guild);
             if (!joinableRoles.Equals(""))
                 builder.Append($"**{joinableRoles}**");
             

@@ -3,6 +3,7 @@ using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 
 namespace Gatekeeper.Services
 {
@@ -38,9 +39,14 @@ namespace Gatekeeper.Services
             return joinableRoleIds.Contains(role.Id);
         }
 
-        public string GetJoinableRoles()
+        public string GetJoinableRoles(SocketGuild guild)
         {
-            return string.Join(" | ", joinableRoleIds);
+            List<string> joinableRoles = new List<string>();
+            foreach (var id in joinableRoleIds)
+            {
+                joinableRoles.Add(guild.GetRole(id).Name);
+            }
+            return string.Join(" | ", joinableRoles);
         }
     }
 }
