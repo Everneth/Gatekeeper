@@ -26,10 +26,10 @@ namespace Gatekeeper.Modules
         [Summary("Add a role to the joinable whitelist.")]
         private async Task AddRoleAsync(SocketRole role)
         {
-            if (_manager.AddRole(role, Context.Guild))
-                await ReplyAsync($"**{role}** added to the whitelist.");
+            if (_manager.AddRole(role))
+                await ReplyAsync($"**{role.Name}** added to the whitelist.");
             else
-                await ReplyAsync($"**{role}** could not be added to the whitelist.");
+                await ReplyAsync($"**{role.Name}** could not be added to the whitelist.");
 
         }
 
@@ -38,10 +38,10 @@ namespace Gatekeeper.Modules
         [Summary("Remove a role from the joinable whitelist.")]
         private async Task RemoveRoleAsync(SocketRole role)
         {
-            if (_manager.RemoveRole(role, Context.Guild))
-                await ReplyAsync($"**{role}** was removed from the whitelist.");
+            if (_manager.RemoveRole(role))
+                await ReplyAsync($"**{role.Name}** was removed from the whitelist.");
             else
-                await ReplyAsync($"**{role}** is not on the whitelist.");
+                await ReplyAsync($"**{role.Name}** is not on the whitelist.");
         }
 
         [Command("join")]
