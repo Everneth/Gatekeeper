@@ -39,6 +39,7 @@ namespace Gatekeeper.Commands
 
             foreach (var module in _commands.Modules)
             {
+                // no point in adding the help command to the help command menu...
                 if (module.Name.Equals(this.GetType().Name)) continue;
 
                 foreach(var command in module.Commands)
@@ -51,7 +52,12 @@ namespace Gatekeeper.Commands
                     var result = await command.CheckPreconditionsAsync(Context);
                     if (result.IsSuccess)
                     {
-                        builder.Append($"$.{module.Name} {command.Name} ");
+                        builder.Append("$.");
+                        if (module.Group != null)
+                        {
+                            builder.Append($"{module.Name} ");
+                        }
+                        builder.Append($"{command.Name} ");
 
                         foreach (var parameter in command.Parameters)
                             builder.Append($"[{parameter.Name}] ");

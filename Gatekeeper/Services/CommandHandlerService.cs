@@ -50,7 +50,7 @@ namespace Gatekeeper
             }
 
             // Determine if the message is a command based on the prefix and make sure no bots trigger commands
-            if (!(message.HasStringPrefix("$.", ref argPos) ||
+            if (!(message.HasStringPrefix("$$", ref argPos) ||
                 message.HasMentionPrefix(_client.CurrentUser, ref argPos)) ||
                 message.Author.IsBot)
                 return;
