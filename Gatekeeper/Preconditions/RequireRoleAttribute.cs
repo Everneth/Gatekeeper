@@ -19,7 +19,7 @@ namespace Gatekeeper.Preconditions
                 if (user.Roles.Any(r => r.Name == _name))
                     return Task.FromResult(PreconditionResult.FromSuccess());
                 else
-                    return Task.FromResult(PreconditionResult.FromError($"You do not have the required roles to run this command."));
+                    return Task.FromResult(PreconditionResult.FromError($"You must have the {_name} role to run this command."));
             }
             else
                 return Task.FromResult(PreconditionResult.FromError($"You are not in a guild!"));
