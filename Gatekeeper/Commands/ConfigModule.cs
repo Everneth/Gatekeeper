@@ -23,9 +23,9 @@ namespace Gatekeeper.Commands
         [Summary("Change the minimum characters required in each message in order to score.")]
         public async Task SetBaseCharReq(int amount)
         {
-            int oldAmt = _config.Config.BaseCharReq;
-            _config.Config.BaseCharReq = amount;
-            _data.Save("config", _config.Config);
+            int oldAmt = _config.RankingConfig.BaseCharReq;
+            _config.RankingConfig.BaseCharReq = amount;
+            _data.Save("config", _config.RankingConfig);
             await ReplyAsync("Base characters required updated to **" + amount + "**! OLD: " + oldAmt);
         }
 
@@ -33,9 +33,9 @@ namespace Gatekeeper.Commands
         [Summary("Change the initial score awarded for qualified messages.")]
         public async Task SetBaseScore(int amount)
         {
-            int oldAmt = _config.Config.BaseScore;
-            _config.Config.BaseScore = amount;
-            _data.Save("config", _config.Config);
+            int oldAmt = _config.RankingConfig.BaseScore;
+            _config.RankingConfig.BaseScore = amount;
+            _data.Save("config", _config.RankingConfig);
             await ReplyAsync("Base score for qualified mesages updated to **" + amount + "**! OLD: " + oldAmt);
         }
 
@@ -43,9 +43,9 @@ namespace Gatekeeper.Commands
         [Summary("Change the bonus score awarded for additional characters in a message.")]
         public async Task SetAdditionalCharsScore(int amount)
         {
-            int oldAmt = _config.Config.AdditionalCharsScore;
-            _config.Config.AdditionalCharsScore = amount;
-            _data.Save("config", _config.Config);
+            int oldAmt = _config.RankingConfig.AdditionalCharsScore;
+            _config.RankingConfig.AdditionalCharsScore = amount;
+            _data.Save("config", _config.RankingConfig);
             await ReplyAsync("Score for additional characters past base updated to **" + amount + "**! OLD: " + oldAmt);
         }
 
@@ -53,18 +53,18 @@ namespace Gatekeeper.Commands
         [Summary("Change the amount of points required for the applicant to reach in order to be promoted to Pending.")]
         public async Task SetPromoThreshold(int amount)
         {
-            int oldAmt = _config.Config.PromoThreshold;
-            _config.Config.PromoThreshold = amount;
-            _data.Save("config", _config.Config);
+            int oldAmt = _config.RankingConfig.PromoThreshold;
+            _config.RankingConfig.PromoThreshold = amount;
+            _data.Save("config", _config.RankingConfig);
             await ReplyAsync("Score threshold for promotion to pending updated to **" + amount + "**! OLD: " + oldAmt);
         }
         [Command("requiredwords")]
         [Summary("Change the amount of words required in a message for it to be scored.")]
         public async Task SetRequiredWords(int amount)
         {
-            int oldAmt = _config.Config.RequiredWords;
-            _config.Config.RequiredWords = amount;
-            _data.Save("config", _config.Config);
+            int oldAmt = _config.RankingConfig.RequiredWords;
+            _config.RankingConfig.RequiredWords = amount;
+            _data.Save("config", _config.RankingConfig);
             await ReplyAsync("Required amount of words to score a message updated to **" + amount + "**! OLD: " + oldAmt);
         }
         [Command("show")]
@@ -78,11 +78,11 @@ namespace Gatekeeper.Commands
                 "Score for Additional Chars :: {2}\n" +
                 "Threshold for Promotion :: {3}\n" +
                 "Required words per msg :: {4}```", +
-                _config.Config.BaseCharReq,
-                _config.Config.BaseScore,
-                _config.Config.AdditionalCharsScore,
-                _config.Config.PromoThreshold,
-                _config.Config.RequiredWords);
+                _config.RankingConfig.BaseCharReq,
+                _config.RankingConfig.BaseScore,
+                _config.RankingConfig.AdditionalCharsScore,
+                _config.RankingConfig.PromoThreshold,
+                _config.RankingConfig.RequiredWords);
             await ReplyAsync(msg);
         }
     }
