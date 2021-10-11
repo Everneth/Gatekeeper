@@ -3,6 +3,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Discord.WebSocket;
 using Gatekeeper.Helpers;
+using Gatekeeper.Services;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Gatekeeper.Events
@@ -10,10 +11,12 @@ namespace Gatekeeper.Events
     public class UserJoinEvent
     {
         private readonly DiscordSocketClient _client;
+        private readonly DatabaseService _database;
 
         public UserJoinEvent(IServiceProvider services)
         {
             _client = services.GetRequiredService<DiscordSocketClient>();
+            _database = services.GetRequiredService<DatabaseService>();
             _client.UserJoined += JoinGuildEventAsync;
         }
 
@@ -24,7 +27,7 @@ namespace Gatekeeper.Events
             var applyChannel = user.Guild.Channels.SingleOrDefault(c => c.Name == "apply") as SocketTextChannel;
             var generalChannel = user.Guild.Channels.SingleOrDefault(c => c.Name == "town-square") as SocketTextChannel;
 
-            if (DatabaseService.PlayerExists(user))
+            if (_database.PlayerExists(user))
             {
                 var roles = user.Guild.Roles.Where(r => r.Name == "Citizen" || r.Name == "Synced");
                 await user.AddRolesAsync(roles);
