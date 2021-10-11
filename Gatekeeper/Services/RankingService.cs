@@ -64,7 +64,7 @@ namespace Gatekeeper.Services
             // count 
 
             // validation
-            if(content.Length >= _config.Config.BaseCharReq && wordCount >= _config.Config.RequiredWords && HasActualWords(content))
+            if(content.Length >= _config.RankingConfig.BaseCharReq && wordCount >= _config.RankingConfig.RequiredWords && HasActualWords(content))
             {
                 Score(content, message.Author);
             }
@@ -94,9 +94,9 @@ namespace Gatekeeper.Services
             int score = 0;
             var applicant = _applicants.Find(u => u.DiscordId == user.Id);
 
-            applicant.Score += ((message.Length / _config.Config.BaseCharReq) * _config.Config.AdditionalCharsScore) + _config.Config.BaseScore;
+            applicant.Score += ((message.Length / _config.RankingConfig.BaseCharReq) * _config.RankingConfig.AdditionalCharsScore) + _config.RankingConfig.BaseScore;
 
-            if (applicant.Score >= _config.Config.PromoThreshold)
+            if (applicant.Score >= _config.RankingConfig.PromoThreshold)
                 Promote(user as SocketGuildUser);
             else
                 _data.Save("applicants", _applicants);

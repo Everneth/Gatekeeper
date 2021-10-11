@@ -20,7 +20,8 @@ namespace Gatekeeper
 		private DataService _data;
 		private AuditService _auditer;
 		private RoleService _manager;
-		private DiscordToken _token;
+		private BotConfig _token;
+		private DatabaseService _database;
 
 		public static void Main()
 		=> new Program().MainAsync().GetAwaiter().GetResult();	
@@ -37,14 +38,13 @@ namespace Gatekeeper
 				_data = services.GetRequiredService<DataService>();
 				_auditer = services.GetRequiredService<AuditService>();
 				_manager = services.GetRequiredService<RoleService>();
+				_database = services.GetRequiredService<DatabaseService>();
 
 				_client.Log += Log;
 
-				await _client.SetGameAsync("$.help", null, ActivityType.Listening);
+				await _client.SetGameAsync(_config.BotConfig.CommandPrefix + "help", null, ActivityType.Listening);
 
-				DiscordToken token = _data.Load("token", _token);
-
-				await _client.LoginAsync(TokenType.Bot, token.Token);
+				await _client.LoginAsync(TokenType.Bot, _config.BotConfig.Token);
 				await _client.StartAsync();
 
 				await services.GetRequiredService<CommandHandlerService>().InstallCommandsAsync();
@@ -77,6 +77,7 @@ namespace Gatekeeper
 				.AddSingleton<UserJoinEvent>()
 				.AddSingleton<AuditService>()
 				.AddSingleton<RoleService>()
+				.AddSingleton<DatabaseService>()
 				.BuildServiceProvider();
 		}
 	}

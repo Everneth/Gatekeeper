@@ -1,1 +1,7 @@
-{"BaseCharReq":3,"BaseScore":1,"AdditionalCharsScore":1,"PromoThreshold":75,"RequiredWords":5}
+﻿{
+  "token": "",
+  "prefix": "$.",
+  "database_username": "",
+  "database": "",
+  "password": ""
+}

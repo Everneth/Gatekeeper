@@ -19,21 +19,21 @@ namespace Gatekeeper.Services
             _services = services;
         }
 
-        public void Save<T, U>(T data, U type)
+        public void Save<T, U>(T name, U data)
         {
-            string path = String.Format(@"Data/{0}.json", data);
+            string path = String.Format(@"Data/{0}.json", name);
             using (StreamWriter file = File.CreateText(path))
             {
                 JsonSerializer serializer = new JsonSerializer();
-                serializer.Serialize(file, type);
+                var json = JsonConvert.SerializeObject(data, Formatting.Indented);
+                file.Write(json);
             }
         }
 
-        public U Load<T, U>(T data, U type)
+        public U Load<T, U>(T name, U data)
         {
-            string path = String.Format(@"Data/{0}.json", data);
+            string path = String.Format(@"Data/{0}.json", name);
             using (StreamReader file = File.OpenText(path))
-
             {
                 JsonSerializer serializer = new JsonSerializer();
                 return (U)serializer.Deserialize(file, typeof(U));

@@ -24,7 +24,7 @@ namespace Gatekeeper.Events
             var applyChannel = user.Guild.Channels.SingleOrDefault(c => c.Name == "apply") as SocketTextChannel;
             var generalChannel = user.Guild.Channels.SingleOrDefault(c => c.Name == "town-square") as SocketTextChannel;
 
-            if (DatabaseHelper.PlayerExists(user))
+            if (DatabaseService.PlayerExists(user))
             {
                 var roles = user.Guild.Roles.Where(r => r.Name == "Citizen" || r.Name == "Synced");
                 await user.AddRolesAsync(roles);

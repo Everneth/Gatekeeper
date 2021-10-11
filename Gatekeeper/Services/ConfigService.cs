@@ -12,14 +12,16 @@ namespace Gatekeeper.Services
         private DiscordSocketClient _client;
         private DataService _data;
         private IServiceProvider _services;
-        public BotConfig Config { get; set; }
+        public RankingConfig RankingConfig { get; set; }
+        public BotConfig BotConfig { get; set; }
 
         public ConfigService(IServiceProvider services)
         {
             _client = services.GetRequiredService<DiscordSocketClient>();
             _data = services.GetRequiredService<DataService>();
             _services = services;
-            Config = _data.Load("config", Config);
+            RankingConfig = _data.Load("ranking_config", RankingConfig);
+            BotConfig = _data.Load("config", BotConfig);
         }
     }
 }

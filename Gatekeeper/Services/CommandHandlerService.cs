@@ -4,6 +4,7 @@ using Discord.WebSocket;
 using Gatekeeper.Services;
 using Microsoft.Extensions.DependencyInjection;
 using System;
+using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
 
@@ -13,12 +14,14 @@ namespace Gatekeeper
     {
         private readonly DiscordSocketClient _client;
         private readonly CommandService _commands;
+        private readonly ConfigService _config;
         private IServiceProvider _services;
 
         public CommandHandlerService(IServiceProvider services)
         {
             _commands = services.GetRequiredService<CommandService>();
             _client = services.GetRequiredService<DiscordSocketClient>();
+            _config = services.GetRequiredService<ConfigService>();
             _services = services;
             _client.MessageReceived += MessageReceivedAsync;
             _commands.CommandExecuted += CommandExecutedAsync;
@@ -50,7 +53,7 @@ namespace Gatekeeper
             }
 
             // Determine if the message is a command based on the prefix and make sure no bots trigger commands
-            if (!(message.HasStringPrefix("$.", ref argPos) ||
+            if (!(message.HasStringPrefix(_config.BotConfig.CommandPrefix, ref argPos) ||
                 message.HasMentionPrefix(_client.CurrentUser, ref argPos)) ||
                 message.Author.IsBot)
                 return;
