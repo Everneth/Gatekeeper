@@ -38,8 +38,7 @@ namespace Gatekeeper.Services
                         player.Id = rdr.GetInt32(0);
                         player.Name = rdr.GetString(1);
                         player.UUID = rdr.GetString(2);
-                        //player.MemberId = rdr.GetInt32(3);
-                        player.DiscordId = rdr.GetInt64(4);
+                        player.DiscordId = rdr.GetInt64(5);
                     }
                 }
             }
