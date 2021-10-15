@@ -1,8 +1,11 @@
 ﻿using Discord.WebSocket;
+using Gatekeeper.Commands;
 using Gatekeeper.Models;
 using Microsoft.Extensions.DependencyInjection;
 using MySql.Data.MySqlClient;
 using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace Gatekeeper.Services
 {
@@ -14,7 +17,7 @@ namespace Gatekeeper.Services
         public DatabaseService(IServiceProvider services)
         {
             _config = services.GetRequiredService<ConfigService>();
-            connectionString = String.Format("server=localhost;userid={0};password={1};database={2}",
+            connectionString = String.Format("server=167.114.117.213;userid={0};password={1};database={2};port=3306",
                 _config.BotConfig.DatabaseUsername,
                 _config.BotConfig.Password,
                 _config.BotConfig.Database);
@@ -35,10 +38,10 @@ namespace Gatekeeper.Services
                 {
                     while (rdr.Read())
                     {
-                        player.Id = rdr.GetInt32(0);
-                        player.Name = rdr.GetString(1);
-                        player.UUID = rdr.GetString(2);
-                        player.DiscordId = rdr.GetInt64(5);
+                        player.Id = rdr.GetInt32("player_id");
+                        player.Name = rdr.GetString("player_name");
+                        player.UUID = rdr.GetString("player_uuid");
+                        player.DiscordId = rdr.GetInt64("discord_id");
                     }
                 }
             }
@@ -60,6 +63,6 @@ namespace Gatekeeper.Services
             using MySqlDataReader rdr = cmd.ExecuteReader();
 
             return rdr.RecordsAffected > 0;
-        }
+        
     }
 }
