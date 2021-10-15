@@ -63,6 +63,6 @@ namespace Gatekeeper.Services
             using MySqlDataReader rdr = cmd.ExecuteReader();
 
             return rdr.RecordsAffected > 0;
-        
+        }
     }
 }
