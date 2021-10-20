@@ -1,5 +1,7 @@
 ﻿using Discord.Commands;
 using Discord.WebSocket;
+using Gatekeeper.Services;
+using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -11,11 +13,17 @@ namespace Gatekeeper.Commands
     [Group("info")]
     public class InfoModule : ModuleBase<SocketCommandContext>
     {
+        private readonly DatabaseService _database;
+        public InfoModule(IServiceProvider services)
+        {
+            _database = services.GetRequiredService<DatabaseService>();
+        }
+
         [Command("getid")]
         [Summary("Search users and return a list of IDs")]
         public async Task GetDiscordID(string info)
         {
-            var users = Context.Guild.Users.Where(u => u.Username.Contains(info)).ToList();
+            var users = Context.Guild.Users.Where(u => u.Username.IndexOf(info, StringComparison.OrdinalIgnoreCase) >= 0).ToList();
             
             if (users.Count == 0)
             {
@@ -25,6 +33,13 @@ namespace Gatekeeper.Commands
             {
                 await ReplyAsync(BuildMessage(users, info));
             }
+        }
+
+        [Command("getmention")]
+        [Summary("Return user as a mention for quick access to their account/view roles.")]
+        public async Task GetMention(ulong id)
+        {
+            await ReplyAsync(Context.Guild.GetUser(id).Mention);
         }
 
         private string BuildMessage(List<SocketGuildUser> users, string search)
@@ -37,13 +52,6 @@ namespace Gatekeeper.Commands
             }
             sb.Append("```");
             return sb.ToString();
-        }
-        
-        [Command("getmention")]
-        [Summary("Return user as a mention for quick access to their account/view roles.")]
-        public async Task GetMention(ulong id)
-        {
-            await ReplyAsync(Context.Guild.GetUser(id).Mention);
         }
     }
 }

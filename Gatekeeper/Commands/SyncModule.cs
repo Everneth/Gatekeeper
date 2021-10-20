@@ -34,7 +34,7 @@ namespace Gatekeeper.Commands
             }
             else
             {
-                await ReplyAsync("You have not synced your minecraft account. Please use `/discordsync` in-game.");
+                await ReplyAsync("You have not synced your minecraft account. Please use `/discord sync <Name#0000>` in-game.");
             }
         }
 
@@ -50,7 +50,7 @@ namespace Gatekeeper.Commands
                 if (_database.RemoveSync(user))
                 {
                     await user.RemoveRoleAsync(syncedRole.Id);
-                    await ReplyAsync("Your discord account has been successfully unsynced. `/discordsync` in-game if you wish to sync another minecraft account.");
+                    await ReplyAsync("Your discord account has been successfully unsynced. `/discord sync <Name#0000>` in-game if you wish to sync another minecraft account.");
                 }
                 else
                 {

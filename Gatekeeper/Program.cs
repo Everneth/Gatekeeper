@@ -41,7 +41,7 @@ namespace Gatekeeper
 				_database = services.GetRequiredService<DatabaseService>();
 
 				_client.Log += Log;
-
+				_client.Ready += OnReady;
 				await _client.SetGameAsync(_config.BotConfig.CommandPrefix + "help", null, ActivityType.Listening);
 
 				await _client.LoginAsync(TokenType.Bot, _config.BotConfig.Token);
@@ -49,16 +49,25 @@ namespace Gatekeeper
 
 				await services.GetRequiredService<CommandHandlerService>().InstallCommandsAsync();
 
+
 				// Block this task until the program is closed.
 				await Task.Delay(-1);
 			}
 		}
 
-		private Task Log(LogMessage msg)
+        private async Task OnReady()
+        {
+			// cache all members of the Everneth discord
+			await _client.GetGuild(177976693942779904).DownloadUsersAsync();
+		}
+
+        private Task Log(LogMessage msg)
 		{
 			Console.WriteLine(msg.ToString());
 			return Task.CompletedTask;
 		}
+
+
 
 		private ServiceProvider ConfigureServices()
 		{

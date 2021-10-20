@@ -46,6 +46,10 @@ namespace Gatekeeper.Services
             
             var message = cachedMessage.Value;
             string audit = $"**{message.Author}'s** message in <#{channel.Id}> was deleted. Content: \n{message.Content}";
+            foreach (var attachment in message.Attachments)
+            {
+                audit += $"\n{attachment.Url}";
+            }
 
             await SendAudit(audit, ":wastebasket:");
         }
@@ -62,8 +66,8 @@ namespace Gatekeeper.Services
             StringBuilder builder = new StringBuilder();
 
             builder.AppendLine($"**{message.Author}'s** message in <#{channel.Id}> was updated.");
-            builder.AppendLine($"Old content: {message}");
-            builder.AppendLine($"New content: {newMessage}");
+            builder.AppendLine($"**Old content**: {message}");
+            builder.AppendLine($"**New content**: {newMessage}");
 
             await SendAudit(builder.ToString(), ":pencil:");
         }

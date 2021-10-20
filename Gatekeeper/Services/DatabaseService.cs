@@ -5,6 +5,7 @@ using Microsoft.Extensions.DependencyInjection;
 using MySql.Data.MySqlClient;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace Gatekeeper.Services
@@ -17,7 +18,7 @@ namespace Gatekeeper.Services
         public DatabaseService(IServiceProvider services)
         {
             _config = services.GetRequiredService<ConfigService>();
-            connectionString = String.Format("server=167.114.117.213;userid={0};password={1};database={2};port=3306",
+            connectionString = String.Format("server=localhost;userid={0};password={1};database={2}",
                 _config.BotConfig.DatabaseUsername,
                 _config.BotConfig.Password,
                 _config.BotConfig.Database);
