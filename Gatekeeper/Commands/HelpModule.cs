@@ -1,5 +1,6 @@
 ﻿using Discord;
 using Discord.Commands;
+using Gatekeeper.Services;
 using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Text;
@@ -10,10 +11,12 @@ namespace Gatekeeper.Commands
     public class HelpModule : ModuleBase<SocketCommandContext>
     {
         private readonly CommandService _commands;
+        private readonly ConfigService _config;
         
         public HelpModule(IServiceProvider services)
         {
             _commands = services.GetRequiredService<CommandService>();
+            _config = services.GetRequiredService<ConfigService>();
         }
 
         [Command("help")]
@@ -52,7 +55,7 @@ namespace Gatekeeper.Commands
                     var result = await command.CheckPreconditionsAsync(Context);
                     if (result.IsSuccess)
                     {
-                        builder.Append("$.");
+                        builder.Append(_config.BotConfig.CommandPrefix);
                         if (module.Group != null)
                         {
                             builder.Append($"{module.Name} ");
