@@ -18,7 +18,8 @@ namespace Gatekeeper.Services
         public DatabaseService(IServiceProvider services)
         {
             _config = services.GetRequiredService<ConfigService>();
-            connectionString = String.Format("server=localhost;userid={0};password={1};database={2}",
+            connectionString = String.Format("server={0};userid={1};password={2};database={3};port=3306",
+                _config.BotConfig.DatabaseIp,
                 _config.BotConfig.DatabaseUsername,
                 _config.BotConfig.Password,
                 _config.BotConfig.Database);

@@ -13,6 +13,8 @@ namespace Gatekeeper.Models
         public string CommandPrefix { get; set; }
         [JsonProperty("database_username")]
         public string DatabaseUsername { get; set; }
+        [JsonProperty("database_ip")]
+        public string DatabaseIp { get; set; }
         [JsonProperty("database")]
         public string Database { get; set; }
         [JsonProperty("password")]

@@ -2,6 +2,7 @@
   "token": "",
   "prefix": "$.",
   "database_username": "",
+  "database_ip": "",
   "database": "",
   "password": ""
 }
