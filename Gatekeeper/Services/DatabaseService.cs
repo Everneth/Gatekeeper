@@ -46,12 +46,10 @@ namespace Gatekeeper.Services
                         player.DiscordId = rdr.GetInt64("discord_id");
                     }
                 }
+                rdr.Close();
             }
 
-            if (player.DiscordId == 0 || player == null)
-                return false;
-            else
-                return true;
+            return !(player.DiscordId == 0 || player == null);
         }
 
         public bool RemoveSync(SocketGuildUser user)
@@ -59,12 +57,12 @@ namespace Gatekeeper.Services
             using var con = new MySqlConnection(connectionString);
             con.Open();
 
-            var stm = String.Format("UPDATE players SET discord_id = 0 WHERE discord_id = {0}", user.Id);
+            var stm = String.Format("UPDATE players SET discord_id = NULL WHERE discord_id = {0}", user.Id);
             var cmd = new MySqlCommand(stm, con);
 
-            using MySqlDataReader rdr = cmd.ExecuteReader();
+            int rowsAffected = cmd.ExecuteNonQuery();
 
-            return rdr.RecordsAffected > 0;
+            return rowsAffected > 0;
         }
     }
 }
