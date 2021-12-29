@@ -1,10 +1,13 @@
 ﻿using Discord;
 using Discord.Commands;
+using Discord.Interactions;
+using Discord.Net;
 using Discord.WebSocket;
 using Gatekeeper.Events;
 using Gatekeeper.Models;
 using Gatekeeper.Services;
 using Microsoft.Extensions.DependencyInjection;
+using Newtonsoft.Json;
 using System;
 using System.Threading.Tasks;
 
@@ -28,37 +31,33 @@ namespace Gatekeeper
 
 		public async Task MainAsync()
 		{
-			using (var services = ConfigureServices())
-			{
-				_client = services.GetRequiredService<DiscordSocketClient>();
-				_commands = services.GetRequiredService<CommandService>();
-				_ranking = services.GetRequiredService<RankingService>();
-				_config = services.GetRequiredService<ConfigService>();
-				_joinEvent = services.GetRequiredService<UserJoinEvent>();
-				_data = services.GetRequiredService<DataService>();
-				_auditer = services.GetRequiredService<AuditService>();
-				_manager = services.GetRequiredService<RoleService>();
-				_database = services.GetRequiredService<DatabaseService>();
+            using var services = ConfigureServices();
+            _client = services.GetRequiredService<DiscordSocketClient>();
+            _ranking = services.GetRequiredService<RankingService>();
+            _config = services.GetRequiredService<ConfigService>();
+            _joinEvent = services.GetRequiredService<UserJoinEvent>();
+            _data = services.GetRequiredService<DataService>();
+            _auditer = services.GetRequiredService<AuditService>();
+            _manager = services.GetRequiredService<RoleService>();
+            _database = services.GetRequiredService<DatabaseService>();
 
-				_client.Log += Log;
-				_client.Ready += OnReady;
-				await _client.SetGameAsync(_config.BotConfig.CommandPrefix + "help", null, ActivityType.Listening);
+            _client.Log += Log;
+            _client.Ready += OnReady;
+            await _client.SetGameAsync("the door", type: ActivityType.Watching);
 
-				await _client.LoginAsync(TokenType.Bot, _config.BotConfig.Token);
-				await _client.StartAsync();
+            await _client.LoginAsync(TokenType.Bot, _config.BotConfig.Token);
+            await _client.StartAsync();
 
-				await services.GetRequiredService<CommandHandlerService>().InstallCommandsAsync();
+            await services.GetRequiredService<CommandHandlerService>().InstallCommandsAsync();
 
-
-				// Block this task until the program is closed.
-				await Task.Delay(-1);
-			}
-		}
+            // Block this task until the program is closed.
+            await Task.Delay(-1);
+        }
 
         private async Task OnReady()
         {
 			// cache all members of the Everneth discord
-			await _client.GetGuild(177976693942779904).DownloadUsersAsync();
+			await _client.GetGuild(_config.BotConfig.GuildId).DownloadUsersAsync();
 		}
 
         private Task Log(LogMessage msg)
@@ -67,8 +66,6 @@ namespace Gatekeeper
 			return Task.CompletedTask;
 		}
 
-
-
 		private ServiceProvider ConfigureServices()
 		{
 			return new ServiceCollection()
@@ -76,9 +73,10 @@ namespace Gatekeeper
 					new DiscordSocketConfig
 					{
 						AlwaysDownloadUsers = true,
-						MessageCacheSize = 3000
+						MessageCacheSize = 3000,
+						GatewayIntents = GatewayIntents.All
 					}))
-				.AddSingleton<CommandService>()
+				.AddSingleton<InteractionService>()
 				.AddSingleton<CommandHandlerService>()
 				.AddSingleton<RankingService>()
 				.AddSingleton<ConfigService>()

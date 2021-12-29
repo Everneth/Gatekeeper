@@ -40,7 +40,7 @@ namespace Gatekeeper.Services
             await channel.SendMessageAsync($"{emote} `[{currentTime:hh\\:mm\\:ss}]` {audit}", allowedMentions: AllowedMentions.None);
         }
 
-        private async Task LogMessageDeleted(Cacheable<IMessage, ulong> cachedMessage, ISocketMessageChannel channel)
+        private async Task LogMessageDeleted(Cacheable<IMessage, ulong> cachedMessage, Cacheable<IMessageChannel, ulong> channel)
         {
             if (cachedMessage.Value == null || IgnoredChannelIds.Contains(channel.Id)) return;
             
@@ -72,22 +72,23 @@ namespace Gatekeeper.Services
             await SendAudit(builder.ToString(), ":pencil:");
         }
 
-        private async Task LogGuildMemberUpdated(SocketGuildUser before, SocketGuildUser after)
+        private async Task LogGuildMemberUpdated(Cacheable<SocketGuildUser, ulong> before, SocketGuildUser after)
         {
+            var beforeValue = before.Value;
             StringBuilder builder = new StringBuilder();
             builder.Append($"**{before}'s** ");
 
-            if (before.Roles.Count != after.Roles.Count)
+            if (beforeValue.Roles.Count != after.Roles.Count)
             {
                 builder.AppendLine("roles have changed.");
-                if (before.Roles.Count < after.Roles.Count)
+                if (beforeValue.Roles.Count < after.Roles.Count)
                 {
-                    SocketRole newRole = after.Roles.Except(before.Roles).First();
+                    SocketRole newRole = after.Roles.Except(before.Value.Roles).First();
                     builder.AppendLine($"Gained Role: `{newRole}`");
                 }
                 else
                 {
-                    SocketRole lostRole = before.Roles.Except(after.Roles).First();
+                    SocketRole lostRole = beforeValue.Roles.Except(after.Roles).First();
                     builder.AppendLine($"Lost Role: `{lostRole}`");
                 }
 
@@ -99,20 +100,20 @@ namespace Gatekeeper.Services
                     builder.Append($"`{string.Join(", ", after.Roles.Skip(1).OrderByDescending(x => x.Position))}`");
                 }
             }
-            else if (before.Nickname != null || after.Nickname != null)
+            else if (beforeValue.Nickname != null || after.Nickname != null)
             {
                 // use the null state of the nickname to determine what nickname was changed to, if changed at all
-                if (before.Nickname == null && after.Nickname != null)
+                if (beforeValue.Nickname == null && after.Nickname != null)
                 {
                     builder.Append($"nickname has been changed from **none** to **{after.Nickname}**.");
                 }
-                else if (before.Nickname != null && after.Nickname == null)
+                else if (beforeValue.Nickname != null && after.Nickname == null)
                 {
-                    builder.Append($"nickname has been changed from **{before.Nickname}** to **none**.");
+                    builder.Append($"nickname has been changed from **{beforeValue.Nickname}** to **none**.");
                 }
-                else if ((before.Nickname != null && after.Nickname != null) && !before.Nickname.Equals(after.Nickname))
+                else if ((beforeValue.Nickname != null && after.Nickname != null) && !beforeValue.Nickname.Equals(after.Nickname))
                 {
-                    builder.Append($"nickname has been changed from **{before.Nickname}** to **{after.Nickname}**.");
+                    builder.Append($"nickname has been changed from **{beforeValue.Nickname}** to **{after.Nickname}**.");
                 }
             }
 
@@ -146,9 +147,9 @@ namespace Gatekeeper.Services
             await SendAudit($"**{user}** joined the server. Total Guild Members: **{user.Guild.MemberCount}**", ":door:");
         }
 
-        private async Task LogUserLeft(SocketGuildUser user)
+        private async Task LogUserLeft(SocketGuild guild, SocketUser user)
         {
-            await SendAudit($"**{user}** left the server. Total Guild Members: **{user.Guild.MemberCount}**", ":door:");
+            await SendAudit($"**{user}** left the server. Total Guild Members: **{guild.MemberCount}**", ":door:");
         }
     }
 }

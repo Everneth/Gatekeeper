@@ -1,5 +1,5 @@
 ﻿using Discord;
-using Discord.Commands;
+using Discord.Interactions;
 using Gatekeeper.Services;
 using Microsoft.Extensions.DependencyInjection;
 using System;
@@ -8,19 +8,20 @@ using System.Threading.Tasks;
 
 namespace Gatekeeper.Commands
 {
-    public class HelpModule : ModuleBase<SocketCommandContext>
+    public class HelpModule : InteractionModuleBase<SocketInteractionContext>
     {
-        private readonly CommandService _commands;
+        private readonly IServiceProvider _services;
+        private readonly InteractionService _interactions;
         private readonly ConfigService _config;
         
-        public HelpModule(IServiceProvider services)
+        public HelpModule(IServiceProvider services, InteractionService interactions)
         {
-            _commands = services.GetRequiredService<CommandService>();
+            _services = services;
             _config = services.GetRequiredService<ConfigService>();
+            _interactions = interactions;
         }
 
-        [Command("help")]
-        [Summary("List all commands available")]
+        //[SlashCommand("help", "List all commands available")]
         public async Task Help()
         {
             EmbedBuilder eb = new EmbedBuilder()
@@ -40,23 +41,23 @@ namespace Gatekeeper.Commands
                 }
             };
 
-            foreach (var module in _commands.Modules)
+            foreach (var module in _interactions.Modules)
             {
                 // no point in adding the help command to the help command menu...
                 if (module.Name.Equals(this.GetType().Name)) continue;
 
-                foreach(var command in module.Commands)
+                foreach(var command in module.SlashCommands)
                 {
                     // Get the command Summary attribute information
-                    string embedFieldText = command.Summary ?? "No description available\n";
+                    string embedFieldText = command.Description ?? "No description available\n";
                     StringBuilder builder = new StringBuilder();
 
                     // If command sender is able to run this command, append it to the embed with all its parameters
-                    var result = await command.CheckPreconditionsAsync(Context);
+                    var result = await command.CheckPreconditionsAsync(Context, _services);
                     if (result.IsSuccess)
                     {
                         builder.Append(_config.BotConfig.CommandPrefix);
-                        if (module.Group != null)
+                        if (module.IsTopLevelGroup)
                         {
                             builder.Append($"{module.Name} ");
                         }

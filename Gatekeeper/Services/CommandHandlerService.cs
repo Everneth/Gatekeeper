@@ -1,92 +1,61 @@
 ﻿using Discord;
-using Discord.Commands;
+using Discord.Interactions;
 using Discord.WebSocket;
-using Gatekeeper.Services;
 using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
 
-namespace Gatekeeper
+namespace Gatekeeper.Services
 {
     public class CommandHandlerService
     {
         private readonly DiscordSocketClient _client;
-        private readonly CommandService _commands;
         private readonly ConfigService _config;
+        private readonly InteractionService _commands;
         private IServiceProvider _services;
 
-        public CommandHandlerService(IServiceProvider services)
+        public CommandHandlerService(IServiceProvider services, DiscordSocketClient client, 
+            ConfigService config, InteractionService commands)
         {
-            _commands = services.GetRequiredService<CommandService>();
-            _client = services.GetRequiredService<DiscordSocketClient>();
-            _config = services.GetRequiredService<ConfigService>();
+            _client = client;
+            _config = config;
             _services = services;
-            _client.MessageReceived += MessageReceivedAsync;
-            _commands.CommandExecuted += CommandExecutedAsync;
+            _commands = commands;
+
+            _client.Ready += RegisterCommands;
+
+            _client.InteractionCreated += InteractionCreated;
+            _commands.SlashCommandExecuted += SlashCommandExecutedAsync;
         }
 
         public async Task InstallCommandsAsync()
         {
-            await _commands.AddModulesAsync(assembly: Assembly.GetEntryAssembly(),
-                                            services: _services);
+            await _commands.AddModulesAsync(Assembly.GetExecutingAssembly(), _services);
         }
 
-        public async Task MessageReceivedAsync(SocketMessage messageParam)
+        private async Task RegisterCommands()
         {
-            // Don't process the command if it was a system message
-            var message = messageParam as SocketUserMessage;
-            if (message == null || message.Author == null) return;
-
-            // Create a number to track where the prefix ends and the command begins
-            int argPos = 0;
-
-            var user = message.Author as SocketGuildUser;
-
-            foreach(var role in user.Roles)
-            {
-                if(role.Name.Equals("Applicant"))
-                {
-                    _services.GetRequiredService<RankingService>().Process(message);
-                }
-            }
-
-            // Determine if the message is a command based on the prefix and make sure no bots trigger commands
-            if (!(message.HasStringPrefix(_config.BotConfig.CommandPrefix, ref argPos) ||
-                message.HasMentionPrefix(_client.CurrentUser, ref argPos)) ||
-                message.Author.IsBot)
-                return;
-
-            // Create a WebSocket-based command context based on the message
-            var context = new SocketCommandContext(_client, message);
-
-            var result = await _commands.ExecuteAsync(
-                context: context,
-                argPos: argPos,
-                services: _services);
+            await _commands.RegisterCommandsToGuildAsync(_config.BotConfig.GuildId);
+            _client.Ready -= RegisterCommands;
         }
 
-        public async Task CommandExecutedAsync(Optional<CommandInfo> command, ICommandContext context, IResult result)
+        private async Task InteractionCreated(SocketInteraction interaction)
         {
-            // command is unspecified when there was a search failure (command not found); we don't care about these errors
-            if (!command.IsSpecified)
-                return;
+            // I am not sure if bot's can trigger interactions/slash commands, but if they can we want to ignore them
+            if (interaction.User.IsBot) return;
 
+            var context = new SocketInteractionContext(_client, interaction);
+            await _commands.ExecuteCommandAsync(context, _services);
+        }
+
+        private async Task SlashCommandExecutedAsync(SlashCommandInfo command, IInteractionContext context, Discord.Interactions.IResult result)
+        {
             // the command was successful, we don't care about this result, unless we want to log that a command succeeded.
-            if (result.IsSuccess)
-                return;
+            if (result.IsSuccess) return;
 
-            // the command failed, let's notify the user that something happened.
-            switch (result.Error)
-            {
-                case CommandError.UnmetPrecondition:
-                    await context.Channel.SendMessageAsync(result.ErrorReason);
-                    break;
-                case CommandError.BadArgCount:
-                    await context.Channel.SendMessageAsync(result.ErrorReason);
-                    break;
-            }
+            await context.Interaction.RespondAsync(result.ErrorReason, ephemeral: true);
         }
     }
 }

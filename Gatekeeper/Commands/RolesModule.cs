@@ -1,7 +1,6 @@
-﻿using Discord.Commands;
+﻿using Discord.Interactions;
 using Discord.WebSocket;
-using Gatekeeper.Commands;
-using Gatekeeper.Preconditions;
+using Gatekeeper.Commands.AutoCompleteHandlers;
 using Gatekeeper.Services;
 using Microsoft.Extensions.DependencyInjection;
 using System;
@@ -11,8 +10,8 @@ using System.Threading.Tasks;
 
 namespace Gatekeeper.Modules
 {
-    [Group("role")]
-    public class RolesModule : ModuleBase<SocketCommandContext>
+    [Group("role", "All commands pertaining to role management.")]
+    public class RolesModule : InteractionModuleBase<SocketInteractionContext>
     {
         private readonly RoleService _manager;
 
@@ -21,31 +20,28 @@ namespace Gatekeeper.Modules
             _manager = services.GetRequiredService<RoleService>();
         }
 
-        [Command("add")]
+        [SlashCommand("add", "Add a role to the joinable whitelist.")]
         [RequireRole("Staff")]
-        [Summary("Add a role to the joinable whitelist.")]
         private async Task AddRoleAsync(SocketRole role)
         {
             if (_manager.AddRole(role))
-                await ReplyAsync($"**{role.Name}** added to the whitelist.");
+                await RespondAsync($"**{role.Name}** added to the whitelist.");
             else
-                await ReplyAsync($"**{role.Name}** could not be added to the whitelist.");
+                await RespondAsync($"**{role.Name}** could not be added to the whitelist.");
 
         }
 
-        [Command("remove")]
+        [SlashCommand("remove", "Remove a role from the joinable whitelist.")]
         [RequireRole("Staff")]
-        [Summary("Remove a role from the joinable whitelist.")]
         private async Task RemoveRoleAsync(SocketRole role)
         {
             if (_manager.RemoveRole(role))
-                await ReplyAsync($"**{role.Name}** was removed from the whitelist.");
+                await RespondAsync($"**{role.Name}** was removed from the whitelist.");
             else
-                await ReplyAsync($"**{role.Name}** is not on the whitelist.");
+                await RespondAsync($"**{role.Name}** is not on the whitelist.");
         }
 
-        [Command("join")]
-        [Summary("Join a role on the joinable whitelist.")]
+        [SlashCommand("join", "Join a role on the joinable whitelist.")]
         private async Task JoinRoleAsync(SocketRole role)
         {
             SocketGuildUser user = Context.Guild.GetUser(Context.User.Id);
@@ -54,29 +50,27 @@ namespace Gatekeeper.Modules
                 if (!user.Roles.Contains(role))
                 {
                     await user.AddRoleAsync(role);
-                    await ReplyAsync($"{user.Mention}, gave you the **{role.Name}** role.");
+                    await RespondAsync($"{user.Mention}, gave you the **{role.Name}** role.");
                 }
             }
             else
             {
-                await ReplyAsync($"{Context.User.Mention}, that role is not joinable.");
+                await RespondAsync($"{Context.User.Mention}, that role is not joinable.");
             }
         }
 
-        [Command("leave")]
-        [Summary("Leave a role on the joinable whitelist.")]
+        [SlashCommand("leave", "Leave a role on the joinable whitelist.")]
         private async Task LeaveRoleAsync(SocketRole role)
         {
             SocketGuildUser user = Context.User as SocketGuildUser;
             if (_manager.IsJoinable(role) && user.Roles.Contains(role))
             {
                 await user.RemoveRoleAsync(role);
-                await ReplyAsync($"{user.Mention}, removed the **{role}** role.");
+                await RespondAsync($"{user.Mention}, removed the **{role}** role.");
             }
         }
 
-        [Command("list")]
-        [Summary("List all joinable roles")]
+        [SlashCommand("list", "List all joinable roles")]
         private async Task ListRolesAsync()
         {
             StringBuilder builder = new StringBuilder();
@@ -86,7 +80,7 @@ namespace Gatekeeper.Modules
             if (!joinableRoles.Equals(""))
                 builder.Append($"**{joinableRoles}**");
             
-            await ReplyAsync(builder.ToString());
+            await RespondAsync(builder.ToString());
         }
     }
 }

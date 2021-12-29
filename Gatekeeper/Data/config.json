@@ -1,6 +1,7 @@
 ﻿{
   "token": "",
   "prefix": "$.",
+  "guild_id": 0,
   "database_username": "",
   "database_ip": "",
   "database": "",

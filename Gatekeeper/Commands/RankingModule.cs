@@ -1,5 +1,4 @@
-﻿using Discord.Commands;
-using Gatekeeper.Preconditions;
+﻿using Discord.Interactions;
 using Gatekeeper.Services;
 using Microsoft.Extensions.DependencyInjection;
 using System;
@@ -9,9 +8,9 @@ using System.Threading.Tasks;
 
 namespace Gatekeeper.Commands
 {
-    [Group("ranking")]
+    [Group("ranking", "All the commands pertaining to user ranking for the application process.")]
     [RequireRole("High Council (Admin)")]
-    public class RankingModule : ModuleBase<SocketCommandContext>
+    public class RankingModule : InteractionModuleBase<SocketInteractionContext>
     {
         private readonly RankingService _ranking;
         private readonly DataService _data;
@@ -21,8 +20,7 @@ namespace Gatekeeper.Commands
             _ranking = services.GetRequiredService<RankingService>();
         }
         
-        [Command("score")]
-        [Summary("Pull up a single applicant's score.")]
+        [SlashCommand("score", "Get the user's current application score.")]
         public async Task CheckScore(ulong id = 0)
         {
             if (id != 0)
@@ -45,8 +43,7 @@ namespace Gatekeeper.Commands
             }
         }
 
-        [Command("allscores")]
-        [Summary("Retrieve all scores for applicants.")]
+        [SlashCommand("allscores", "Retrieve all scores for applicants.")]
         public async Task ShowAllScores()
         {
             StringBuilder sb = new StringBuilder();
@@ -59,15 +56,13 @@ namespace Gatekeeper.Commands
             await ReplyAsync(sb.ToString());
         }
 
-        [Command("clean")]
-        [Summary("Clean out orphaned data in the ranking cache. Use this command if you suspect tracking has stopped working or if several applicants leave the discord.")]
+        [SlashCommand("clean", "Clean out orphaned data in the ranking cache.")]
         public async Task CleanRankData()
         {
             await ReplyAsync(_ranking.Clean(Context.Guild));
         }
 
-        [Command("reload")]
-        [Summary("Reload the list of applicant data into memory.")]
+        [SlashCommand("reload", "Reload the list of applicant data into memory.")]
         public async Task Reload()
         {
             _data.Load("applicants", _ranking.Applicants);
