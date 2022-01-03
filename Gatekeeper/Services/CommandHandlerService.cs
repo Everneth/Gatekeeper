@@ -37,7 +37,15 @@ namespace Gatekeeper.Services
 
         private async Task RegisterCommands()
         {
-            await _commands.RegisterCommandsToGuildAsync(_config.BotConfig.GuildId);
+            try
+            {
+                await _commands.RegisterCommandsToGuildAsync(_config.BotConfig.GuildId);
+            }
+            catch (Exception error)
+            {
+                Console.WriteLine(error.Message);
+            }
+
             _client.Ready -= RegisterCommands;
         }
 
