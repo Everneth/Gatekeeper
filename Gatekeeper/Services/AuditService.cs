@@ -76,7 +76,7 @@ namespace Gatekeeper.Services
         {
             var beforeValue = before.Value;
             StringBuilder builder = new StringBuilder();
-            builder.Append($"**{before}'s** ");
+            builder.Append($"**{beforeValue}'s** ");
 
             if (beforeValue.Roles.Count != after.Roles.Count)
             {
