@@ -1,6 +1,5 @@
 ﻿using Discord.Interactions;
 using Discord.WebSocket;
-using Gatekeeper.Commands.AutoCompleteHandlers;
 using Gatekeeper.Services;
 using Microsoft.Extensions.DependencyInjection;
 using System;
