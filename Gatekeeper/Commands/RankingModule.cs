@@ -28,18 +28,18 @@ namespace Gatekeeper.Commands
                 var applicant = _ranking.Applicants.SingleOrDefault(u => u.DiscordId == id);
                 if(applicant == null)
                 {
-                    await ReplyAsync("User not found!");
+                    await RespondAsync("User not found!");
 
                 }
                 else
                 {
-                    await ReplyAsync(Context.Guild.GetUser(id).Mention + " has " + applicant.Score + " points.");
+                    await RespondAsync(Context.Guild.GetUser(id).Mention + " has " + applicant.Score + " points.");
                 }
 
             }
             else
             {
-                await ReplyAsync("Please supply a Discord ID. [$.ranking score <id>]");
+                await RespondAsync("Please supply a Discord ID. [$.ranking score <id>]");
             }
         }
 
@@ -53,20 +53,20 @@ namespace Gatekeeper.Commands
                 sb.Append(string.Format("{0}#{1} :: {2}\n", user.DiscordUsername, user.Discriminator, user.Score));
             }
             sb.Append("```");
-            await ReplyAsync(sb.ToString());
+            await RespondAsync(sb.ToString());
         }
 
         [SlashCommand("clean", "Clean out orphaned data in the ranking cache.")]
         public async Task CleanRankData()
         {
-            await ReplyAsync(_ranking.Clean(Context.Guild));
+            await RespondAsync(_ranking.Clean(Context.Guild));
         }
 
         [SlashCommand("reload", "Reload the list of applicant data into memory.")]
         public async Task Reload()
         {
             _data.Load("applicants", _ranking.Applicants);
-            await ReplyAsync("Applicant list reloaded.");
+            await RespondAsync("Applicant list reloaded.");
         }
     }
 }

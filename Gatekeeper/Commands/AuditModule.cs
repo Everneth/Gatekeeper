@@ -31,7 +31,7 @@ namespace Gatekeeper.Commands
 
             _audit.IgnoredChannelIds.Add(channel.Id);
             _data.Save("ignored_channels", _audit.IgnoredChannelIds);
-            await channel.SendMessageAsync("Added this channel to the ignored channels list!");
+            await RespondAsync($"Added {channel.Name} channel to the ignored channels list!");
         }
 
         [SlashCommand("unignore", "Have the audit log stop ignoring all events in the specified channel.")]
@@ -45,7 +45,7 @@ namespace Gatekeeper.Commands
 
             _audit.IgnoredChannelIds.Remove(channel.Id);
             _data.Save("ignored_channels", _audit.IgnoredChannelIds);
-            await channel.SendMessageAsync("Removed this channel from the ignored channels list!");
+            await RespondAsync($"Removed {channel.Name} channel from the ignored channels list!");
         }
     }
 }

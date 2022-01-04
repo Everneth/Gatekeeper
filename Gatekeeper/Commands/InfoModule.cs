@@ -26,11 +26,11 @@ namespace Gatekeeper.Commands
             
             if (users.Count == 0)
             {
-                await ReplyAsync("```asciidoc\n= NO RESULTS FOUND =```");
+                await RespondAsync("```asciidoc\n= NO RESULTS FOUND =```");
             }
             else
             {
-                await ReplyAsync(BuildMessage(users, info));
+                await RespondAsync(BuildMessage(users, info));
             }
 
         }

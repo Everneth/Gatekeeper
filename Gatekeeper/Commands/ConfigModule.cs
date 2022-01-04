@@ -24,7 +24,7 @@ namespace Gatekeeper.Commands
             int oldAmt = _config.RankingConfig.BaseCharReq;
             _config.RankingConfig.BaseCharReq = amount;
             _data.Save("config", _config.RankingConfig);
-            await ReplyAsync("Base characters required updated to **" + amount + "**! OLD: " + oldAmt);
+            await RespondAsync("Base characters required updated to **" + amount + "**! OLD: " + oldAmt);
         }
 
         [SlashCommand("basescore", "Change the initial score awarded for qualified messages.")]
@@ -33,7 +33,7 @@ namespace Gatekeeper.Commands
             int oldAmt = _config.RankingConfig.BaseScore;
             _config.RankingConfig.BaseScore = amount;
             _data.Save("config", _config.RankingConfig);
-            await ReplyAsync("Base score for qualified mesages updated to **" + amount + "**! OLD: " + oldAmt);
+            await RespondAsync("Base score for qualified mesages updated to **" + amount + "**! OLD: " + oldAmt);
         }
 
         [SlashCommand("additionalcharscore", "Change the bonus score awarded for additional characters in a message.")]
@@ -42,7 +42,7 @@ namespace Gatekeeper.Commands
             int oldAmt = _config.RankingConfig.AdditionalCharsScore;
             _config.RankingConfig.AdditionalCharsScore = amount;
             _data.Save("config", _config.RankingConfig);
-            await ReplyAsync("Score for additional characters past base updated to **" + amount + "**! OLD: " + oldAmt);
+            await RespondAsync("Score for additional characters past base updated to **" + amount + "**! OLD: " + oldAmt);
         }
 
         [SlashCommand("promothreshold", "Change the amount of points required for the applicant to reach in order to be promoted to Pending.")]
@@ -51,7 +51,7 @@ namespace Gatekeeper.Commands
             int oldAmt = _config.RankingConfig.PromoThreshold;
             _config.RankingConfig.PromoThreshold = amount;
             _data.Save("config", _config.RankingConfig);
-            await ReplyAsync("Score threshold for promotion to pending updated to **" + amount + "**! OLD: " + oldAmt);
+            await RespondAsync("Score threshold for promotion to pending updated to **" + amount + "**! OLD: " + oldAmt);
         }
         [SlashCommand("requiredwords", "Change the amount of words required in a message for it to be scored.")]
         public async Task SetRequiredWords(int amount)
@@ -59,7 +59,7 @@ namespace Gatekeeper.Commands
             int oldAmt = _config.RankingConfig.RequiredWords;
             _config.RankingConfig.RequiredWords = amount;
             _data.Save("config", _config.RankingConfig);
-            await ReplyAsync("Required amount of words to score a message updated to **" + amount + "**! OLD: " + oldAmt);
+            await RespondAsync("Required amount of words to score a message updated to **" + amount + "**! OLD: " + oldAmt);
         }
 
         [SlashCommand("show", "Show the current values that Jasper uses in the formula to score messages.")]
@@ -77,7 +77,7 @@ namespace Gatekeeper.Commands
                 _config.RankingConfig.AdditionalCharsScore,
                 _config.RankingConfig.PromoThreshold,
                 _config.RankingConfig.RequiredWords);
-            await ReplyAsync(msg);
+            await RespondAsync(msg);
         }
     }
 }
