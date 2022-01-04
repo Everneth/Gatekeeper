@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 namespace Gatekeeper.Commands
 {
     [Group("audit", "All commands pertaining to the behavior of the audit service.")]
-    [RequireRole("Staff")]
+    [RequireRole("High Council (Admin)")]
     public class AuditModule : InteractionModuleBase<SocketInteractionContext>
     {
         private readonly AuditService _audit;
