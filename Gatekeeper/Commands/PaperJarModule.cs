@@ -1,28 +1,26 @@
-﻿using Discord.Commands;
+﻿using Discord.Interactions;
 using Gatekeeper.Helpers;
-using Gatekeeper.Preconditions;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
 namespace Gatekeeper.Commands
 {
-    [Group("jar")]
-    [RequireRole("High Council (Admin)")]
-    public class PaperJarModule : ModuleBase<SocketCommandContext>
+    [Group("jar", "Set of commands that allow the modification of the server jar directly.")]
+    public class PaperJarModule : InteractionModuleBase<SocketInteractionContext>
     {
-        [Command("update")]
-        [Summary("Takes a specified minecraft version and updates the main/test server jars to the latest build under that version")]
-        public async Task UpdateJar(string minecraftVersion)
+        [RequireRole("High Council (Admin)")]
+        [SlashCommand("update", "Update the server jar to the latest release of the specified Minecraft version.")]
+        public async Task UpdateJar(string version)
         {
-            string pattern = @"1.\d+.?\d+";
-            if (Regex.IsMatch(minecraftVersion, pattern))
+            string pattern = @"^1\.\d+(\.\d+)?$";
+            if (Regex.IsMatch(version, pattern))
             {
-                ScriptHelper.Run("/home/servers/volumes/main/process/update-jar.sh " + minecraftVersion);
-                await Context.Channel.SendMessageAsync("Running paper jar update script for minecraft version `" + minecraftVersion + "`.");
+                ScriptHelper.Run("/home/servers/volumes/main/process/update-jar.sh " + version);
+                await RespondAsync("Running paper jar update script for minecraft version `" + version + "`.", ephemeral: true);
             }
             else
             {
-                await Context.Channel.SendMessageAsync("That's not a valid minecraft version.");
+                await RespondAsync("That's not a valid minecraft version.", ephemeral: true);
             }
         }
     }

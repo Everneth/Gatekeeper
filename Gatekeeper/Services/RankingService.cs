@@ -4,6 +4,7 @@ using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace Gatekeeper.Services
 {
@@ -28,9 +29,20 @@ namespace Gatekeeper.Services
             _data = services.GetRequiredService<DataService>();
             _services = services;
             _applicants = _data.Load("applicants", _applicants);
+
+            _client.MessageReceived += Process;
         }
-        public void Process(SocketMessage message)
+        public async Task Process(SocketMessage messageParam)
         {
+            // Don't process the command if it was a system message
+            SocketUserMessage message = messageParam as SocketUserMessage;
+            if (message == null || message.Author == null || message.Author.IsBot) return;
+
+            var user = message.Author as SocketGuildUser;
+
+            // If the user is not an applicant we can ignore them
+            if (!user.Roles.Any(role => role.Name == "Applicant")) return;
+
             // Does this user exist in the applicant list?
             if (!_applicants.Exists(a => a.DiscordId == message.Author.Id))
             {

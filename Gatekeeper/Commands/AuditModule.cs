@@ -1,6 +1,5 @@
-﻿using Discord.Commands;
+﻿using Discord.Interactions;
 using Discord.WebSocket;
-using Gatekeeper.Preconditions;
 using Gatekeeper.Services;
 using Microsoft.Extensions.DependencyInjection;
 using System;
@@ -8,9 +7,9 @@ using System.Threading.Tasks;
 
 namespace Gatekeeper.Commands
 {
-    [Group("audit")]
+    [Group("audit", "All commands pertaining to the behavior of the audit service.")]
     [RequireRole("High Council (Admin)")]
-    public class AuditModule : ModuleBase<SocketCommandContext>
+    public class AuditModule : InteractionModuleBase<SocketInteractionContext>
     {
         private readonly AuditService _audit;
         private readonly DataService _data;
@@ -21,7 +20,7 @@ namespace Gatekeeper.Commands
             _data = services.GetRequiredService<DataService>();
         }
 
-        [Command("ignore")]
+        [SlashCommand("ignore", "Have the audit logs ignore any events in the specified channel.")]
         public async Task IgnoreChannel(ISocketMessageChannel channel = null)
         {
             if (channel == null)
@@ -35,7 +34,7 @@ namespace Gatekeeper.Commands
             await channel.SendMessageAsync("Added this channel to the ignored channels list!");
         }
 
-        [Command("unignore")]
+        [SlashCommand("unignore", "Have the audit log stop ignoring all events in the specified channel.")]
         public async Task UnignoreChannel(ISocketMessageChannel channel = null)
         {
             if (channel == null)

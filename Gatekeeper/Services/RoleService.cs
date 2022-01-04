@@ -10,39 +10,39 @@ namespace Gatekeeper.Services
     public class RoleService
     {
         private readonly DataService _data;
-        private readonly HashSet<ulong> joinableRoleIds;
+        public HashSet<ulong> JoinableRoleIds { get; private set; }
 
         public RoleService(IServiceProvider services)
         {
             _data = services.GetRequiredService<DataService>();
-            joinableRoleIds = _data.Load("roles", joinableRoleIds);
+            JoinableRoleIds = _data.Load("roles", JoinableRoleIds);
         }
 
         public bool AddRole(SocketRole role)
         {
-            bool wasAdded = joinableRoleIds.Add(role.Id);
-            _data.Save("roles", joinableRoleIds);
+            bool wasAdded = JoinableRoleIds.Add(role.Id);
+            _data.Save("roles", JoinableRoleIds);
 
             return wasAdded;
         }
 
         public bool RemoveRole(SocketRole role)
         {
-            bool wasRemoved = joinableRoleIds.Remove(role.Id);
-            _data.Save("roles", joinableRoleIds);
+            bool wasRemoved = JoinableRoleIds.Remove(role.Id);
+            _data.Save("roles", JoinableRoleIds);
 
             return wasRemoved;
         }
 
         public bool IsJoinable(SocketRole role)
         {
-            return joinableRoleIds.Contains(role.Id);
+            return JoinableRoleIds.Contains(role.Id);
         }
 
         public string GetJoinableRoles(SocketGuild guild)
         {
             List<string> joinableRoles = new List<string>();
-            foreach (var id in joinableRoleIds)
+            foreach (var id in JoinableRoleIds)
             {
                 joinableRoles.Add(guild.GetRole(id).Name);
             }

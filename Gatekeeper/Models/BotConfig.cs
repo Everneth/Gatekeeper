@@ -11,6 +11,8 @@ namespace Gatekeeper.Models
         public string Token { get; set; }
         [JsonProperty("prefix")]
         public string CommandPrefix { get; set; }
+        [JsonProperty("guild_id")]
+        public ulong GuildId { get; set; }
         [JsonProperty("database_username")]
         public string DatabaseUsername { get; set; }
         [JsonProperty("database_ip")]
