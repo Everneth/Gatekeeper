@@ -19,8 +19,8 @@ namespace Gatekeeper.Commands
             _config = services.GetRequiredService<ConfigService>();
         }
 
-        [Command("help")]
-        [Summary("List all commands available")]
+        //[Command("help")]
+        //[Summary("List all commands available")]
         public async Task Help()
         {
             EmbedBuilder eb = new EmbedBuilder()
