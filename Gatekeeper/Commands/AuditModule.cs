@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 namespace Gatekeeper.Commands
 {
     [Group("audit")]
-    [RequireRole("Staff")]
+    [RequireRole("High Council (Admin)")]
     public class AuditModule : ModuleBase<SocketCommandContext>
     {
         private readonly AuditService _audit;
