@@ -20,7 +20,7 @@ namespace Gatekeeper.Commands
             _config = services.GetRequiredService<ConfigService>();
             _interactions = interactions;
         }
-
+        
         //[SlashCommand("help", "List all commands available")]
         public async Task Help()
         {
