@@ -118,7 +118,7 @@ namespace Gatekeeper.Services
             }
 
             // if we have appended something to the string, send it as a log, otherwise do nothing
-            if (!builder.ToString().Equals($"**{before}'s** "))
+            if (!builder.ToString().Equals($"**{beforeValue}'s** "))
             {
                 await SendAudit(builder.ToString(), ":wrench:");
             }
