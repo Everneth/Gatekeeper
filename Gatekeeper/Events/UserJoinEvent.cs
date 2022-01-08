@@ -46,7 +46,7 @@ namespace Gatekeeper.Events
                 "**4)** Answer the questions asked by the bot and when ready, submit your application!\n" +
                 "**5)** Once you put your app in, start chatting in our discord! I will begin keeping tabs on you and will move you to Pending once you have met the requirements! (Shouldn't take you but maybe 30 minutes to an hour!)\n **If you have a friend, they can confirm they know you and you skip to pending!**\n" +
                 "**6)** Once you meet requirements, staff will vote on your application in Discord. if approved, you will get changed to Citizen automatically and whitelisted.\n\n" +
-                "**And thats it!** Good luck!\n\n ***Jasper** - Your friendly guild bouncer and welcoming committee*\n\n **PS:** __If you are already whitelisted and still receieved this message, please login to the game and use `/discord sync` and link your account!__");
+                "**And thats it!** Good luck!\n\n ***Jasper** - Your friendly guild bouncer and welcoming committee*\n\n **PS:** __If you are already whitelisted and still received this message, please login to the game and use `/discord sync` and link your account!__");
             }
         }
     }
