@@ -84,20 +84,20 @@ namespace Gatekeeper.Services
                 if (beforeValue.Roles.Count < after.Roles.Count)
                 {
                     SocketRole newRole = after.Roles.Except(before.Value.Roles).First();
-                    builder.AppendLine($"Gained Role: `{newRole}`");
+                    builder.AppendLine($"Gained Role: `{newRole.Mention}`");
                 }
                 else
                 {
                     SocketRole lostRole = beforeValue.Roles.Except(after.Roles).First();
-                    builder.AppendLine($"Lost Role: `{lostRole}`");
+                    builder.AppendLine($"Lost Role: `{lostRole.Mention}`");
                 }
 
                 // skip the @everyone role and sort from highest ranking role to lowest
                 builder.Append($"Current roles: ");
 
-                if (after.Roles.Count > 0)
+                foreach (var role in after.Roles.Skip(1).OrderByDescending(x => x.Position))
                 {
-                    builder.Append($"`{string.Join(", ", after.Roles.Skip(1).OrderByDescending(x => x.Position))}`");
+                    builder.Append($"{role.Mention} ");
                 }
             }
             else if (beforeValue.Nickname != null || after.Nickname != null)
