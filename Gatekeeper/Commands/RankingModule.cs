@@ -22,7 +22,7 @@ namespace Gatekeeper.Commands
         }
         
         [SlashCommand("score", "Get the user's current application score.")]
-        public async Task CheckScore(ulong id = 0)
+        public async Task CheckScore([Summary("Id", "The user's Discord Id")] ulong id = 0)
         {
             if (id != 0)
             {

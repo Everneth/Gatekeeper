@@ -12,37 +12,46 @@ namespace Gatekeeper.Modules
 {
     public class RolesModule : InteractionModuleBase<SocketInteractionContext>
     {
+        private readonly DiscordSocketClient _client;
         private readonly RoleService _manager;
 
         public RolesModule(IServiceProvider services)
         {
+            _client = services.GetRequiredService<DiscordSocketClient>();
             _manager = services.GetRequiredService<RoleService>();
         }
 
         [DefaultMemberPermissions(GuildPermission.ManageRoles)]
         [SlashCommand("whitelist-role", "Add a role to the joinable whitelist.")]
-        private async Task AddRoleAsync(SocketRole role)
+        private async Task AddRoleAsync([Summary("Role", "The role you wish to make joinable")] SocketRole role)
         {
+            SocketRole highestRole = Context.Guild.CurrentUser.Roles.OrderByDescending(role => role.Position).First();
+            if (role.Position >= highestRole.Position)
+            {
+                await RespondAsync("That role's permissions are greater than mine.", ephemeral: true);
+                return;
+            }
+
             if (_manager.AddRole(role))
-                await RespondAsync($"**{role.Name}** added to the whitelist.");
+                await RespondAsync($"**{role.Mention}** added to the whitelist.", allowedMentions: AllowedMentions.None);
             else
-                await RespondAsync($"**{role.Name}** could not be added to the whitelist.");
+                await RespondAsync($"**{role.Mention}** could not be added to the whitelist.", allowedMentions: AllowedMentions.None);
 
         }
 
         [DefaultMemberPermissions(GuildPermission.ManageRoles)]
         [SlashCommand("unwhitelist-role", "Remove a role from the joinable whitelist.")]
-        private async Task RemoveRoleAsync(SocketRole role)
+        private async Task RemoveRoleAsync([Summary("Role", "The role you wish to make unjoinable")] SocketRole role)
         {
             if (_manager.RemoveRole(role))
-                await RespondAsync($"**{role.Name}** was removed from the whitelist.");
+                await RespondAsync($"**{role.Mention}** was removed from the whitelist.", allowedMentions: AllowedMentions.None);
             else
-                await RespondAsync($"**{role.Name}** is not on the whitelist.");
+                await RespondAsync($"**{role.Mention}** is not on the whitelist.", allowedMentions: AllowedMentions.None);
         }
 
         [DefaultMemberPermissions(GuildPermission.SendMessages)]
         [SlashCommand("join-role", "Join a role on the joinable whitelist.")]
-        private async Task JoinRoleAsync(SocketRole role)
+        private async Task JoinRoleAsync([Summary("Role", "The role you wish to join")] SocketRole role)
         {
             SocketGuildUser user = Context.Guild.GetUser(Context.User.Id);
             if (_manager.IsJoinable(role))
@@ -50,7 +59,7 @@ namespace Gatekeeper.Modules
                 if (!user.Roles.Contains(role))
                 {
                     await user.AddRoleAsync(role);
-                    await RespondAsync($"{user.Mention}, gave you the **{role.Name}** role.");
+                    await RespondAsync($"{user.Mention}, gave you the **{role.Mention}** role.", allowedMentions: AllowedMentions.None);
                 }
             }
             else
@@ -61,13 +70,13 @@ namespace Gatekeeper.Modules
 
         [DefaultMemberPermissions(GuildPermission.SendMessages)]
         [SlashCommand("leave-role", "Leave a role on the joinable whitelist.")]
-        private async Task LeaveRoleAsync(SocketRole role)
+        private async Task LeaveRoleAsync([Summary("Role", "The role you wish to leave")] SocketRole role)
         {
             SocketGuildUser user = Context.User as SocketGuildUser;
             if (_manager.IsJoinable(role) && user.Roles.Contains(role))
             {
                 await user.RemoveRoleAsync(role);
-                await RespondAsync($"{user.Mention}, removed the **{role}** role.");
+                await RespondAsync($"{user.Mention}, removed the **{role.Mention}** role.", allowedMentions: AllowedMentions.None);
             }
         }
 

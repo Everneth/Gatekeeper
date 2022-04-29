@@ -11,7 +11,7 @@ namespace Gatekeeper.Commands
     public class PaperJarModule : InteractionModuleBase<SocketInteractionContext>
     { 
         [SlashCommand("update", "Update the server jar to the latest release of the specified Minecraft version.")]
-        public async Task UpdateJar(string version)
+        public async Task UpdateJar([Summary("Version", "The version of minecraft you want to run")] string version)
         {
             string pattern = @"^1\.\d+(\.\d+)?$";
             if (Regex.IsMatch(version, pattern))
