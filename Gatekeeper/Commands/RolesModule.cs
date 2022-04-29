@@ -1,4 +1,5 @@
-﻿using Discord.Interactions;
+﻿using Discord;
+using Discord.Interactions;
 using Discord.WebSocket;
 using Gatekeeper.Services;
 using Microsoft.Extensions.DependencyInjection;
@@ -19,8 +20,8 @@ namespace Gatekeeper.Modules
             _manager = services.GetRequiredService<RoleService>();
         }
 
+        [DefaultMemberPermissions(GuildPermission.ManageRoles)]
         [SlashCommand("add", "Add a role to the joinable whitelist.")]
-        [RequireRole("Staff")]
         private async Task AddRoleAsync(SocketRole role)
         {
             if (_manager.AddRole(role))
@@ -30,8 +31,8 @@ namespace Gatekeeper.Modules
 
         }
 
+        [DefaultMemberPermissions(GuildPermission.ManageRoles)]
         [SlashCommand("remove", "Remove a role from the joinable whitelist.")]
-        [RequireRole("Staff")]
         private async Task RemoveRoleAsync(SocketRole role)
         {
             if (_manager.RemoveRole(role))

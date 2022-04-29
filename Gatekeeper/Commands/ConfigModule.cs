@@ -1,4 +1,5 @@
-﻿using Discord.Interactions;
+﻿using Discord;
+using Discord.Interactions;
 using Gatekeeper.Services;
 using Microsoft.Extensions.DependencyInjection;
 using System;
@@ -6,8 +7,8 @@ using System.Threading.Tasks;
 
 namespace Gatekeeper.Commands
 {
+    [DefaultMemberPermissions(GuildPermission.Administrator)]
     [Group("config", "All commands pertaining to changing the application requirements config.")]
-    [RequireRole("High Council (Admin)")]
     public class ConfigModule : InteractionModuleBase<SocketInteractionContext>
     {
         private readonly ConfigService _config;

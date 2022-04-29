@@ -1,14 +1,16 @@
-﻿using Discord.Interactions;
+﻿using Discord;
+using Discord.Interactions;
 using Gatekeeper.Helpers;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
 namespace Gatekeeper.Commands
 {
+    [EnabledInDm(false)]
+    [DefaultMemberPermissions(GuildPermission.Administrator)]
     [Group("jar", "Set of commands that allow the modification of the server jar directly.")]
     public class PaperJarModule : InteractionModuleBase<SocketInteractionContext>
-    {
-        [RequireRole("High Council (Admin)")]
+    { 
         [SlashCommand("update", "Update the server jar to the latest release of the specified Minecraft version.")]
         public async Task UpdateJar(string version)
         {

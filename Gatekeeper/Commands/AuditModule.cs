@@ -1,4 +1,5 @@
-﻿using Discord.Interactions;
+﻿using Discord;
+using Discord.Interactions;
 using Discord.WebSocket;
 using Gatekeeper.Services;
 using Microsoft.Extensions.DependencyInjection;
@@ -7,8 +8,9 @@ using System.Threading.Tasks;
 
 namespace Gatekeeper.Commands
 {
+    [EnabledInDm(false)]
+    [DefaultMemberPermissions(GuildPermission.Administrator)]
     [Group("audit", "All commands pertaining to the behavior of the audit service.")]
-    [RequireRole("High Council (Admin)")]
     public class AuditModule : InteractionModuleBase<SocketInteractionContext>
     {
         private readonly AuditService _audit;
