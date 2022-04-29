@@ -40,6 +40,7 @@ namespace Gatekeeper.Modules
                 await RespondAsync($"**{role.Name}** is not on the whitelist.");
         }
 
+        [DefaultMemberPermissions(GuildPermission.SendMessages)]
         [SlashCommand("join-role", "Join a role on the joinable whitelist.")]
         private async Task JoinRoleAsync(SocketRole role)
         {
@@ -58,6 +59,7 @@ namespace Gatekeeper.Modules
             }
         }
 
+        [DefaultMemberPermissions(GuildPermission.SendMessages)]
         [SlashCommand("leave-role", "Leave a role on the joinable whitelist.")]
         private async Task LeaveRoleAsync(SocketRole role)
         {
@@ -69,6 +71,7 @@ namespace Gatekeeper.Modules
             }
         }
 
+        [DefaultMemberPermissions(GuildPermission.SendMessages)]
         [SlashCommand("list-roles", "List all joinable roles")]
         private async Task ListRolesAsync()
         {
