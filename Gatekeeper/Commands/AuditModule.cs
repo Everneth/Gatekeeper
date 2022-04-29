@@ -8,7 +8,6 @@ using System.Threading.Tasks;
 
 namespace Gatekeeper.Commands
 {
-    [EnabledInDm(false)]
     [DefaultMemberPermissions(GuildPermission.Administrator)]
     [Group("audit", "All commands pertaining to the behavior of the audit service.")]
     public class AuditModule : InteractionModuleBase<SocketInteractionContext>

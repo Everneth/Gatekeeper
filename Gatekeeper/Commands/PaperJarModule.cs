@@ -6,7 +6,6 @@ using System.Threading.Tasks;
 
 namespace Gatekeeper.Commands
 {
-    [EnabledInDm(false)]
     [DefaultMemberPermissions(GuildPermission.Administrator)]
     [Group("jar", "Set of commands that allow the modification of the server jar directly.")]
     public class PaperJarModule : InteractionModuleBase<SocketInteractionContext>
