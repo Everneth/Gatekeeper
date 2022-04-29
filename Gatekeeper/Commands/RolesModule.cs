@@ -10,7 +10,6 @@ using System.Threading.Tasks;
 
 namespace Gatekeeper.Modules
 {
-    [Group("role", "All commands pertaining to role management.")]
     public class RolesModule : InteractionModuleBase<SocketInteractionContext>
     {
         private readonly RoleService _manager;
@@ -21,7 +20,7 @@ namespace Gatekeeper.Modules
         }
 
         [DefaultMemberPermissions(GuildPermission.ManageRoles)]
-        [SlashCommand("add", "Add a role to the joinable whitelist.")]
+        [SlashCommand("whitelist-role", "Add a role to the joinable whitelist.")]
         private async Task AddRoleAsync(SocketRole role)
         {
             if (_manager.AddRole(role))
@@ -32,7 +31,7 @@ namespace Gatekeeper.Modules
         }
 
         [DefaultMemberPermissions(GuildPermission.ManageRoles)]
-        [SlashCommand("remove", "Remove a role from the joinable whitelist.")]
+        [SlashCommand("unwhitelist-role", "Remove a role from the joinable whitelist.")]
         private async Task RemoveRoleAsync(SocketRole role)
         {
             if (_manager.RemoveRole(role))
@@ -41,7 +40,7 @@ namespace Gatekeeper.Modules
                 await RespondAsync($"**{role.Name}** is not on the whitelist.");
         }
 
-        [SlashCommand("join", "Join a role on the joinable whitelist.")]
+        [SlashCommand("join-role", "Join a role on the joinable whitelist.")]
         private async Task JoinRoleAsync(SocketRole role)
         {
             SocketGuildUser user = Context.Guild.GetUser(Context.User.Id);
@@ -59,7 +58,7 @@ namespace Gatekeeper.Modules
             }
         }
 
-        [SlashCommand("leave", "Leave a role on the joinable whitelist.")]
+        [SlashCommand("leave-role", "Leave a role on the joinable whitelist.")]
         private async Task LeaveRoleAsync(SocketRole role)
         {
             SocketGuildUser user = Context.User as SocketGuildUser;
@@ -70,17 +69,17 @@ namespace Gatekeeper.Modules
             }
         }
 
-        [SlashCommand("list", "List all joinable roles")]
+        [SlashCommand("list-roles", "List all joinable roles")]
         private async Task ListRolesAsync()
         {
             StringBuilder builder = new StringBuilder();
-            builder.Append($"Here are the joinable roles: ");
+            builder.Append($"Here are the joinable roles:\n");
 
             string joinableRoles = _manager.GetJoinableRoles(Context.Guild);
             if (!joinableRoles.Equals(""))
-                builder.Append($"**{joinableRoles}**");
+                builder.Append($"{joinableRoles}");
             
-            await RespondAsync(builder.ToString());
+            await RespondAsync(builder.ToString(), allowedMentions: AllowedMentions.None);
         }
     }
 }
