@@ -44,7 +44,7 @@ namespace Gatekeeper.Services
             List<string> joinableRoles = new List<string>();
             foreach (var id in JoinableRoleIds)
             {
-                joinableRoles.Add(guild.GetRole(id).Name);
+                joinableRoles.Add(guild.GetRole(id).Mention);
             }
             return string.Join(" | ", joinableRoles);
         }

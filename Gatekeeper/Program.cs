@@ -48,10 +48,10 @@ namespace Gatekeeper
             await _client.LoginAsync(TokenType.Bot, _config.BotConfig.Token);
             await _client.StartAsync();
 
-            await services.GetRequiredService<CommandHandlerService>().InstallCommandsAsync();
+			await services.GetRequiredService<CommandHandlerService>().InstallCommandsAsync();
 
-            // Block this task until the program is closed.
-            await Task.Delay(-1);
+			// Block this task until the program is closed.
+			await Task.Delay(-1);
         }
 
         private async Task OnReady()

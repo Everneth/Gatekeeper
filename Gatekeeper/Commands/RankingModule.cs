@@ -1,4 +1,5 @@
-﻿using Discord.Interactions;
+﻿using Discord;
+using Discord.Interactions;
 using Gatekeeper.Services;
 using Microsoft.Extensions.DependencyInjection;
 using System;
@@ -8,8 +9,8 @@ using System.Threading.Tasks;
 
 namespace Gatekeeper.Commands
 {
+    [DefaultMemberPermissions(GuildPermission.Administrator)]
     [Group("ranking", "All the commands pertaining to user ranking for the application process.")]
-    [RequireRole("High Council (Admin)")]
     public class RankingModule : InteractionModuleBase<SocketInteractionContext>
     {
         private readonly RankingService _ranking;
@@ -21,7 +22,7 @@ namespace Gatekeeper.Commands
         }
         
         [SlashCommand("score", "Get the user's current application score.")]
-        public async Task CheckScore(ulong id = 0)
+        public async Task CheckScore([Summary("Id", "The user's Discord Id")] ulong id = 0)
         {
             if (id != 0)
             {
