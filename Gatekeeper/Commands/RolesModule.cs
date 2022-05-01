@@ -23,7 +23,7 @@ namespace Gatekeeper.Modules
 
         [DefaultMemberPermissions(GuildPermission.ManageRoles)]
         [SlashCommand("whitelist-role", "Add a role to the joinable whitelist.")]
-        private async Task AddRoleAsync([Summary("Role", "The role you wish to make joinable")] SocketRole role)
+        public async Task AddRoleAsync([Summary("Role", "The role you wish to make joinable")] SocketRole role)
         {
             SocketRole highestRole = Context.Guild.CurrentUser.Roles.OrderByDescending(role => role.Position).First();
             if (role.Position >= highestRole.Position)
@@ -41,7 +41,7 @@ namespace Gatekeeper.Modules
 
         [DefaultMemberPermissions(GuildPermission.ManageRoles)]
         [SlashCommand("unwhitelist-role", "Remove a role from the joinable whitelist.")]
-        private async Task RemoveRoleAsync([Summary("Role", "The role you wish to make unjoinable")] SocketRole role)
+        public async Task RemoveRoleAsync([Summary("Role", "The role you wish to make unjoinable")] SocketRole role)
         {
             if (_manager.RemoveRole(role))
                 await RespondAsync($"**{role.Mention}** was removed from the whitelist.", allowedMentions: AllowedMentions.None);
@@ -51,7 +51,7 @@ namespace Gatekeeper.Modules
 
         [DefaultMemberPermissions(GuildPermission.SendMessages)]
         [SlashCommand("join-role", "Join a role on the joinable whitelist.")]
-        private async Task JoinRoleAsync([Summary("Role", "The role you wish to join")] SocketRole role)
+        public async Task JoinRoleAsync([Summary("Role", "The role you wish to join")] SocketRole role)
         {
             SocketGuildUser user = Context.Guild.GetUser(Context.User.Id);
             if (_manager.IsJoinable(role))
@@ -70,7 +70,7 @@ namespace Gatekeeper.Modules
 
         [DefaultMemberPermissions(GuildPermission.SendMessages)]
         [SlashCommand("leave-role", "Leave a role on the joinable whitelist.")]
-        private async Task LeaveRoleAsync([Summary("Role", "The role you wish to leave")] SocketRole role)
+        public async Task LeaveRoleAsync([Summary("Role", "The role you wish to leave")] SocketRole role)
         {
             SocketGuildUser user = Context.User as SocketGuildUser;
             if (_manager.IsJoinable(role) && user.Roles.Contains(role))
@@ -82,7 +82,7 @@ namespace Gatekeeper.Modules
 
         [DefaultMemberPermissions(GuildPermission.SendMessages)]
         [SlashCommand("list-roles", "List all joinable roles")]
-        private async Task ListRolesAsync()
+        public async Task ListRolesAsync()
         {
             StringBuilder builder = new StringBuilder();
             builder.Append($"Here are the joinable roles:\n");
