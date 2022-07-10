@@ -44,12 +44,12 @@ namespace Gatekeeper.Models
                 IsInline = true
             }).AddField(new EmbedFieldBuilder()
             {
-                Name = "",
+                Name = "Command Run",
                 Value = Command,
                 IsInline = true
             }).AddField(new EmbedFieldBuilder()
             {
-                Name = "",
+                Name = "Message returned from the API",
                 Value = Message,
                 IsInline = false
             });
