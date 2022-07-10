@@ -21,5 +21,9 @@ namespace Gatekeeper.Models
         public string Database { get; set; }
         [JsonProperty("password")]
         public string Password { get; set; }
+        [JsonProperty("apitoken")]
+        public string ApiToken { get; set; }
+        [JsonProperty("apiserveruri")]
+        public string ApiServerUri { get; set; }
     }
 }

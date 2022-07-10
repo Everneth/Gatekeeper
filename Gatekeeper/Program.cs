@@ -25,6 +25,7 @@ namespace Gatekeeper
 		private RoleService _manager;
 		private BotConfig _token;
 		private DatabaseService _database;
+		private HttpClientService _restClient;
 
 		public static void Main()
 		=> new Program().MainAsync().GetAwaiter().GetResult();	
@@ -40,6 +41,7 @@ namespace Gatekeeper
             _auditer = services.GetRequiredService<AuditService>();
             _manager = services.GetRequiredService<RoleService>();
             _database = services.GetRequiredService<DatabaseService>();
+			_restClient = services.GetRequiredService<HttpClientService>();
 
             _client.Log += Log;
             _client.Ready += OnReady;
@@ -85,6 +87,7 @@ namespace Gatekeeper
 				.AddSingleton<AuditService>()
 				.AddSingleton<RoleService>()
 				.AddSingleton<DatabaseService>()
+				.AddSingleton<HttpClientService>()
 				.BuildServiceProvider();
 		}
 	}

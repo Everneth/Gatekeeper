@@ -5,5 +5,7 @@
   "database_username": "",
   "database_ip": "",
   "database": "",
-  "password": ""
+  "password": "",
+  "apitoken": "",
+  "apiserveruri": ""
 }
