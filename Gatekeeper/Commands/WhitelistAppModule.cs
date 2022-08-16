@@ -72,6 +72,7 @@ namespace Gatekeeper.Commands
                 message.Embeds = new Embed[] { app.BuildApplicationEmbed() };
                 message.Components = BuildApplicationComponents();
             });
+            _database.UpdateApplication(app);
         }
 
         [ComponentInteraction("app1")]
@@ -165,6 +166,7 @@ namespace Gatekeeper.Commands
         [ComponentInteraction("sendapp")]
         public async Task SubmitApplication()
         {
+            await DeferAsync();
             WhitelistApp app = _whitelist.GetApp(Context.User.Id);
             SocketGuild guild = _client.GetGuild(_config.BotConfig.GuildId);
             SocketTextChannel channel = guild.GetTextChannel(_config.BotConfig.AppsChannelId);
@@ -172,6 +174,14 @@ namespace Gatekeeper.Commands
 
             SocketRole applicant = guild.Roles.FirstOrDefault(role => role.Name == "Applicant");
             await guild.GetUser(Context.User.Id).AddRoleAsync(applicant);
+
+            await ModifyOriginalResponseAsync(message =>
+            {
+                // Removing the buttons and select menu so they can no longer interact with them
+                message.Components = new ComponentBuilder().Build();
+                message.Content = "Application Complete!";
+            });
+            await Context.Channel.SendMessageAsync("We have received your application! Either get to makin' conversation or have your friend confirm they know you!");
         }
 
         [ModalInteraction("info")]
@@ -185,6 +195,7 @@ namespace Gatekeeper.Commands
                 message.Embeds = new Embed[] { app.BuildApplicationEmbed() };
                 message.Components = BuildApplicationComponents();
             });
+            _database.UpdateApplication(app);
         }
 
         [ModalInteraction("essay")]
@@ -198,6 +209,7 @@ namespace Gatekeeper.Commands
                 message.Embeds = new Embed[] { app.BuildApplicationEmbed() };
                 message.Components = BuildApplicationComponents();
             });
+            _database.UpdateApplication(app);
         }
 
         private MessageComponent BuildApplicationComponents()
