@@ -10,10 +10,10 @@ namespace Gatekeeper.Models
         public string Name { get; set; }
         public string UUID { get; set; }
         public int MemberId { get; set; }
-        public long DiscordId { get; set; }
+        public ulong DiscordId { get; set; }
 
         public EMIPlayer() {}
-        public EMIPlayer(int id, string name, string uuid, int memberid, long discordid)
+        public EMIPlayer(int id, string name, string uuid, int memberid, ulong discordid)
         {
             Id = id;
             Name = name;

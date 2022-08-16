@@ -34,7 +34,7 @@ namespace Gatekeeper.Services
         private async Task SendAudit(string audit, string emote)
         {
             TimeSpan currentTime = DateTime.Now.TimeOfDay;
-            var socketGuildChannel = _client.GetGuild(177976693942779904).Channels.FirstOrDefault(x => x.Name.Equals("admin-log"));
+            var socketGuildChannel = _client.GetGuild(735973033021276181).Channels.FirstOrDefault(x => x.Name.Equals("admin-log"));
             var channel = socketGuildChannel.Guild.GetTextChannel(socketGuildChannel.Id);
 
             await channel.SendMessageAsync($"{emote} `[{currentTime:hh\\:mm\\:ss}]` {audit}", allowedMentions: AllowedMentions.None);
@@ -57,7 +57,8 @@ namespace Gatekeeper.Services
         private async Task LogMessageUpdated(Cacheable<IMessage, ulong> cachedMessage, SocketMessage newMessage, ISocketMessageChannel channel)
         {
             var message = cachedMessage.Value;
-            if (message.Content == null ||
+            if (message == null ||
+                message.Content == null ||
                 IgnoredChannelIds.Contains(channel.Id) ||
                 message.Content.Equals(newMessage.Content)) return;
 

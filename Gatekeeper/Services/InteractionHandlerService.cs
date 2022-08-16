@@ -5,41 +5,42 @@ using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Linq;
 using System.Reflection;
+using System.Reflection.Metadata;
 using System.Threading.Tasks;
 
 namespace Gatekeeper.Services
 {
-    public class CommandHandlerService
+    public class InteractionHandlerService
     {
         private readonly DiscordSocketClient _client;
         private readonly ConfigService _config;
-        private readonly InteractionService _commands;
+        private readonly InteractionService _interactions;
         private IServiceProvider _services;
 
-        public CommandHandlerService(IServiceProvider services, DiscordSocketClient client, 
+        public InteractionHandlerService(IServiceProvider services, DiscordSocketClient client, 
             ConfigService config, InteractionService commands)
         {
             _client = client;
             _config = config;
             _services = services;
-            _commands = commands;
+            _interactions = commands;
 
             _client.Ready += RegisterCommands;
-
-            _client.InteractionCreated += InteractionCreated;
-            _commands.SlashCommandExecuted += SlashCommandExecutedAsync;
         }
 
-        public async Task InstallCommandsAsync()
+        public async Task InitializeAsync()
         {
-            await _commands.AddModulesAsync(Assembly.GetExecutingAssembly(), _services);
+            await _interactions.AddModulesAsync(Assembly.GetEntryAssembly(), _services);
+            _client.InteractionCreated += InteractionCreated;
+            _interactions.SlashCommandExecuted += SlashCommandExecutedAsync;
+            _interactions.InteractionExecuted += InteractionExecutedAsync;
         }
 
         private async Task RegisterCommands()
         {
             try
             {
-                await _commands.RegisterCommandsToGuildAsync(_config.BotConfig.GuildId);
+                await _interactions.RegisterCommandsToGuildAsync(_config.BotConfig.GuildId);
             }
             catch (Exception error)
             {
@@ -55,12 +56,19 @@ namespace Gatekeeper.Services
             if (interaction.User.IsBot) return;
 
             var context = new SocketInteractionContext(_client, interaction);
-            await _commands.ExecuteCommandAsync(context, _services);
+            await _interactions.ExecuteCommandAsync(context, _services);
         }
 
-        private async Task SlashCommandExecutedAsync(SlashCommandInfo command, IInteractionContext context, Discord.Interactions.IResult result)
+        private async Task SlashCommandExecutedAsync(SlashCommandInfo command, IInteractionContext context, IResult result)
         {
             // the command was successful, we don't care about this result, unless we want to log that a command succeeded.
+            if (result.IsSuccess) return;
+
+            await context.Interaction.RespondAsync(result.ErrorReason, ephemeral: true);
+        }
+
+        private async Task InteractionExecutedAsync(ICommandInfo info, IInteractionContext context, IResult result)
+        {
             if (result.IsSuccess) return;
 
             await context.Interaction.RespondAsync(result.ErrorReason, ephemeral: true);

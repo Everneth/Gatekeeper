@@ -21,5 +21,7 @@ namespace Gatekeeper.Models
         public string Database { get; set; }
         [JsonProperty("password")]
         public string Password { get; set; }
+        [JsonProperty("apps_channel_id")]
+        public ulong AppsChannelId { get; set; }
     }
 }
