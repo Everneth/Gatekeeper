@@ -35,12 +35,12 @@ namespace Gatekeeper.Services
         public void BeginApplication(SocketUser user)
         {
             appMap.Add(user.Id, new WhitelistApp(user));
-            //_databaseService.InsertApplication(appMap[user.Id]);
+            _databaseService.InsertApplication(appMap[user.Id]);
         }
 
         public void CloseApplication(SocketUser user)
         {
-            //_databaseService.SetApplicationInactive(appMap[user.Id]);
+            _databaseService.SetApplicationInactive(appMap[user.Id]);
             appMap.Remove(user.Id);
             if (_ranking.Remove(user))
                 _ranking.Save();
