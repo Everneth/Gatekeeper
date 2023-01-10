@@ -66,6 +66,13 @@ namespace Gatekeeper.Commands
         {
             await DeferAsync();
             WhitelistApp app = _whitelist.GetApp(Context.User.Id);
+            // If the application is null but the user can interact with components the message must be deleted
+            if (app == null)
+            {
+                await DeleteOriginalResponseAsync();
+                return;
+            }
+
             app.SecretWord = selectedWord[0];
             await ModifyOriginalResponseAsync(message =>
             {
@@ -79,6 +86,12 @@ namespace Gatekeeper.Commands
         public async Task OnInfoModalRequest()
         {
             WhitelistApp app = _whitelist.GetApp(Context.User.Id);
+            // If the application is null but the user can interact with components the message must be deleted
+            if (app == null)
+            {
+                await DeleteOriginalResponseAsync();
+                return;
+            }
             ModalBuilder builder = new ModalBuilder();
             builder.WithCustomId("info")
                 .WithTitle("Basic Applicant Information")
@@ -124,6 +137,12 @@ namespace Gatekeeper.Commands
         public async Task OnEssayModalRequested()
         {
             WhitelistApp app = _whitelist.GetApp(Context.User.Id);
+            // If the application is null but the user can interact with components the message must be deleted
+            if (app == null)
+            {
+                await DeleteOriginalResponseAsync();
+                return;
+            }
             ModalBuilder builder = new ModalBuilder();
             builder.WithCustomId("essay")
                 .WithTitle("Digging a Little Deeper")
@@ -168,6 +187,12 @@ namespace Gatekeeper.Commands
         {
             await DeferAsync();
             WhitelistApp app = _whitelist.GetApp(Context.User.Id);
+            // If the application is null but the user can interact with components the message must be deleted
+            if (app == null)
+            {
+                await DeleteOriginalResponseAsync();
+                return;
+            }
             SocketGuild guild = _client.GetGuild(_config.BotConfig.GuildId);
             SocketTextChannel channel = guild.GetTextChannel(_config.BotConfig.AppsChannelId);
             await channel.SendMessageAsync(embed: app.BuildApplicationEmbed());
@@ -189,6 +214,26 @@ namespace Gatekeeper.Commands
         {
             await DeferAsync();
             WhitelistApp app = _whitelist.GetApp(Context.User.Id);
+            // Default friend field to 'Nope' unless we can find a valid discord user by the name and discriminator
+            if (modal.Fourth.Contains('#'))
+            {
+                string[] username = modal.Fourth.Trim().Split('#');
+                modal.Fourth = "Nope";
+                // Check if the inputted friend string matches a user in the guild
+                var matches = _client.GetGuild(_config.BotConfig.GuildId).Users.Where(user => user.Username.Equals(username[0], StringComparison.OrdinalIgnoreCase));
+                foreach (var user in matches)
+                {
+                    // Check that discriminator matches and user is a citizen
+                    if (user.Discriminator.Equals(username[1]) && user.Roles.Where(role => role.Name.Equals("Citizen")).Count() > 0)
+                    {
+                        modal.Fourth = user.Mention;
+                        break;
+                    }
+                }
+            }
+            else
+                modal.Fourth = "Nope";
+
             app.FillInfoFromModal(modal.First, modal.Second, modal.Third, modal.Fourth);
             await ModifyOriginalResponseAsync(message =>
             {

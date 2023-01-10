@@ -96,7 +96,7 @@ namespace Gatekeeper.Models
             builder.AddField("Minecraft IGN", InGameName ?? emptyChar);
             builder.AddField("Where are you from?", Location ?? emptyChar);
             builder.AddField("How old are you?", Age > 0 ? Age.ToString() : emptyChar);
-            builder.AddField("Do you know someone in our community?", Friend ?? emptyChar);
+            builder.AddField("Do you know someone in our community? If yes, only enter their username and tag (Username#0000).", Friend ?? emptyChar);
             builder.AddField("Have you been banned elsewhere before?", BannedElsewhere ?? emptyChar);
             builder.AddField("What are you looking for in a Minecraft community?", LookingFor ?? emptyChar);
             builder.AddField("What do you love and/or hate about Minecraft?", LoveHate ?? emptyChar);
