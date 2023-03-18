@@ -68,7 +68,7 @@ namespace Gatekeeper.Services
             int wordCount = 0;
 
             // count "words"
-            foreach ( string word in content.Split(' '))
+            foreach (string word in content.Split(' '))
             {
                 ++wordCount;
             }
@@ -95,15 +95,11 @@ namespace Gatekeeper.Services
                 if (numChars > 3)
                     numWords++;
             }
-            if (numWords >= 3)
-                return true;
-            else
-                return false;
+            return numWords >= 3;
         }
 
         private void Score(string message, SocketUser user)
         {
-            int score = 0;
             var applicant = _applicants.Find(u => u.DiscordId == user.Id);
 
             applicant.Score += ((message.Length / _config.RankingConfig.BaseCharReq) * _config.RankingConfig.AdditionalCharsScore) + _config.RankingConfig.BaseScore;
@@ -122,14 +118,14 @@ namespace Gatekeeper.Services
         public bool Remove(SocketUser user)
         {
             var appToRemove = Applicants.SingleOrDefault(a => a.DiscordId == user.Id);
-            if (appToRemove.Equals(null))
+            if (appToRemove is null)
                 return false;
             else { Applicants.Remove(appToRemove); return true; }
         }
 
         public bool Remove(Applicant user)
         {
-            if (user.Equals(null))
+            if (user is null)
                 return false;
             else { Applicants.Remove(user); return true; }
         }
