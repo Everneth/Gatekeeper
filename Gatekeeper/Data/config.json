@@ -6,5 +6,6 @@
   "database_ip": "",
   "database": "",
   "password": "",
-  "apps_channel_id": 0
+  "apps_channel_id": 0,
+  "general_channel_id": 0
 }

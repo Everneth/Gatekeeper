@@ -1,6 +1,5 @@
 ﻿using Discord.WebSocket;
 using Gatekeeper.Models;
-using Microsoft.Extensions.DependencyInjection;
 using MySql.Data.MySqlClient;
 using System;
 using System.Collections.Generic;
@@ -10,11 +9,13 @@ namespace Gatekeeper.Services
     public class DatabaseService
     {
         private readonly string connectionString;
+        private DiscordSocketClient _client;
         private readonly ConfigService _config;
 
-        public DatabaseService(IServiceProvider services)
+        public DatabaseService(IServiceProvider services, ConfigService config, DiscordSocketClient client)
         {
-            _config = services.GetRequiredService<ConfigService>();
+            _client = client;
+            _config = config;
             connectionString = String.Format("server={0};userid={1};password={2};database={3};port=3306",
                 _config.BotConfig.DatabaseIp,
                 _config.BotConfig.DatabaseUsername,
@@ -39,7 +40,7 @@ namespace Gatekeeper.Services
                     {
                         player.Id = rdr.GetInt32("player_id");
                         player.Name = rdr.GetString("player_name");
-                        player.UUID = rdr.GetString("player_uuid");
+                        player.Uuid = Guid.Parse(rdr.GetString("player_uuid"));
                         player.DiscordId = rdr.GetUInt64("discord_id");
                     }
                 }
@@ -77,7 +78,8 @@ namespace Gatekeeper.Services
                 {
                     while (rdr.Read())
                     {
-                        apps.Add(new WhitelistApp(rdr.GetString("mc_ign"),
+                        // Populate the app and get the related SocketUser
+                        WhitelistApp app = new WhitelistApp(rdr.GetString("mc_ign"),
                             rdr.GetString("location"),
                             rdr.GetInt32("age"),
                             rdr.GetString("friend"),
@@ -87,7 +89,9 @@ namespace Gatekeeper.Services
                             rdr.GetString("intro"),
                             rdr.GetString("secret_word"),
                             rdr.GetUInt64("applicant_discord_id"),
-                            rdr.GetGuid("mc_uuid")));
+                            rdr.GetGuid("mc_uuid"));
+                        app.User = _client.GetUser(app.ApplicantDiscordId);
+                        apps.Add(app);
                     }
                 }
             }
@@ -141,6 +145,45 @@ namespace Gatekeeper.Services
 
             int rowsAffected = cmd.ExecuteNonQuery();
             return rowsAffected > 0;
+        }
+
+        public EMIPlayer GetEMIPlayer(ulong discordId)
+        {
+            using var con = new MySqlConnection(connectionString);
+            con.Open();
+
+            var stm = $"SELECT * FROM players WHERE discord_id = {discordId}";
+            var cmd = new MySqlCommand(stm, con);
+
+            MySqlDataReader reader = cmd.ExecuteReader();
+            return new EMIPlayer(reader.GetInt32("player_id"),
+                reader.GetString("player_name"),
+                Guid.Parse(reader.GetString("player_uuid")),
+                reader.GetString("alt_name"),
+                Guid.Parse(reader.GetString("alt_uuid")),
+                reader.GetDateTime("date_alt_added"),
+                reader.GetUInt64("discord_id"),
+                reader.GetDateTime("date_can_next_refer"));
+        }
+
+        public bool UpdateEMIPlayer(EMIPlayer player)
+        {
+            using var con = new MySqlConnection(connectionString);
+            con.Open();
+
+            string dateFormat = "yyyy-MM-dd HH:mm:ss";
+            var stm = $"UPDATE players SET" +
+                $" player_name = {player.Name}," +
+                $" player_uuid = {player.Uuid}," +
+                $" alt_name = {player.AltName}," +
+                $" alt_uuid = {player.AltUuid}," +
+                $" date_alt_added = {player.AltAdded.ToString(dateFormat)}," +
+                $" discord_id = {player.DiscordId}," +
+                $" date_can_next_refer = {player.CanNextReferFriend.ToString(dateFormat)}" +
+                $" WHERE player_id = {player.Id}";
+            var cmd = new MySqlCommand(stm, con);
+
+            return cmd.ExecuteNonQuery() > 0;
         }
     }
 }

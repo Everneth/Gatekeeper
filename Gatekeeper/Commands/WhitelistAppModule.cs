@@ -1,12 +1,14 @@
 ﻿using Discord;
 using Discord.Interactions;
 using Discord.Net;
+using Discord.Rest;
 using Discord.WebSocket;
 using Gatekeeper.Models;
 using Gatekeeper.Models.Modals;
 using Gatekeeper.Services;
 using System;
 using System.Linq;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
 namespace Gatekeeper.Commands
@@ -207,6 +209,14 @@ namespace Gatekeeper.Commands
                 message.Content = "Application Complete!";
             });
             await Context.Channel.SendMessageAsync("We have received your application! Either get to makin' conversation or have your friend confirm they know you!");
+            
+            // The user has claimed they have a friend, friend confirmation message needs to be sent
+            if (app.Friend.Contains('@'))
+            {
+                channel = guild.GetTextChannel(_config.BotConfig.GeneralChannelId);
+                await channel.SendMessageAsync($"Hey {app.Friend}, {app.User.Mention} has claimed you as a friend. Please press one of the buttons to confirm/deny them as a friend.",
+                    components: BuildFriendConfirmationComponents());
+            }
         }
 
         [ModalInteraction("info")]
@@ -214,25 +224,33 @@ namespace Gatekeeper.Commands
         {
             await DeferAsync();
             WhitelistApp app = _whitelist.GetApp(Context.User.Id);
+            string userWithDiscrim = modal.Fourth;
+            modal.Fourth = "Nope";
             // Default friend field to 'Nope' unless we can find a valid discord user by the name and discriminator
-            if (modal.Fourth.Contains('#'))
+            if (userWithDiscrim.Contains('#'))
             {
-                string[] username = modal.Fourth.Trim().Split('#');
-                modal.Fourth = "Nope";
-                // Check if the inputted friend string matches a user in the guild
-                var matches = _client.GetGuild(_config.BotConfig.GuildId).Users.Where(user => user.Username.Equals(username[0], StringComparison.OrdinalIgnoreCase));
-                foreach (var user in matches)
+                string[] username = userWithDiscrim.Split('#');
+                // Get user matching username and discrim, will return null if they do not exist
+                var user = _client.GetGuild(_config.BotConfig.GuildId).GetUser(_client.GetUser(username[0], username[1]).Id);
+                if (user != null)
                 {
-                    // Check that discriminator matches and user is a citizen
-                    if (user.Discriminator.Equals(username[1]) && user.Roles.Where(role => role.Name.Equals("Citizen")).Count() > 0)
+                    // Check that the user is a citizen
+                    if (user.Roles.Where(role => role.Name.Equals("Citizen")).Count() > 0)
                     {
                         modal.Fourth = user.Mention;
-                        break;
+                    }
+
+                    // Check if user's referral restriction has expired
+                    EMIPlayer player = _database.GetEMIPlayer(user.Id);
+                    if (player.CanNextReferFriend > DateTime.Now)
+                    {
+                        uint unixEpoch = (uint)player.CanNextReferFriend.Subtract(new DateTime(1970, 1, 1)).TotalSeconds;
+                        modal.Fourth = "Nope";
+                        await RespondAsync($"{user.Mention} cannot confirm another friend until <t:{unixEpoch}:f>." +
+                            $" If you know someone else you may use them instead.", ephemeral: true);
                     }
                 }
             }
-            else
-                modal.Fourth = "Nope";
 
             app.FillInfoFromModal(modal.First, modal.Second, modal.Third, modal.Fourth);
             await ModifyOriginalResponseAsync(message =>
@@ -255,6 +273,73 @@ namespace Gatekeeper.Commands
                 message.Components = BuildApplicationComponents();
             });
             _database.UpdateApplication(app);
+        }
+
+        [ComponentInteraction("confirmation")]
+        public async Task FriendConfirmation()
+        {
+            // Only works because we can guarantee this interaction is off a message component
+            string message = (Context.Interaction as SocketMessageComponent).Message.Content;
+
+            // Need to grab discord ids from confirmation message to parse to users <@ulong>, <@ulong>
+            ParseUsers(message, out SocketGuildUser friend, out SocketGuildUser applicant);
+            
+            // The friend either took too long or one of the users left
+            if (friend is null || applicant is null || !_whitelist.UserHasActiveApplication(applicant.Id))
+            {
+                await DeleteOriginalResponseAsync();
+                return;
+            }
+
+            if (Context.User.Id == applicant.Id)
+            {
+                await RespondAsync("You cannot confirm yourself...", ephemeral: true);
+                return;
+            }
+            else if (Context.User.Id != friend.Id)
+            {
+                await RespondAsync("You cannot confirm this applicant.", ephemeral: true);
+                return;
+            }
+
+            await ModifyOriginalResponseAsync(message =>
+            {
+                uint unixEpoch = (uint)DateTime.Now.AddDays(30.0f).Subtract(new DateTime(1970, 1, 1)).TotalSeconds;
+                message.Content = $"{friend.Mention} has confirmed {applicant.Mention} as a friend. Friend accountability ends <t:{unixEpoch}:f> your time.";
+                message.Components = BuildFriendConfirmationComponents(true);
+            });
+
+            // Add pending which starts the whitelist vote
+            await applicant.AddRoleAsync(Context.Guild.Roles.Where(role => role.Name == "Pending").First());
+
+            EMIPlayer friendPlayer = _database.GetEMIPlayer(friend.Id);
+            friendPlayer.CanNextReferFriend = DateTime.Now.AddDays(3.0f);
+            _database.UpdateEMIPlayer(friendPlayer);
+        }
+
+        [ComponentInteraction("denial")]
+        public async Task FriendDenial()
+        {
+            // Only works because we can guarantee this interaction is off a message component
+            string message = (Context.Interaction as SocketMessageComponent).Message.Content;
+
+            // Need to grab discord ids from confirmation message to parse to users <@ulong>, <@ulong>
+            ParseUsers(message, out SocketGuildUser friend, out SocketGuildUser applicant);
+
+            if (Context.User.Id == applicant.Id)
+            {
+                await RespondAsync("Trying to deny yourself, eh?", ephemeral: true);
+                return;
+            }
+            else if (Context.User.Id != friend.Id)
+            {
+                await RespondAsync("Stop pushing my buttons.", ephemeral: true);
+                return;
+            }
+
+            // Just delete the message if they have denied friend accountability and message the applicant
+            await DeleteOriginalResponseAsync();
+            await applicant.SendMessageAsync($"{friend.Mention} has denied you as a friend. You will have to speak to our members to trigger a whitelist vote instead.");
         }
 
         private MessageComponent BuildApplicationComponents()
@@ -288,6 +373,25 @@ namespace Gatekeeper.Commands
             builder.WithButton("Digging Deeper", "app2", ButtonStyle.Secondary, emote: essayCompleted ? validEmoji : invalidEmoji);
             builder.WithButton("Submit Application", "sendapp", ButtonStyle.Success, emote: validEmoji, disabled: !appCompleted);
             return builder.Build();
+        }
+
+        private MessageComponent BuildFriendConfirmationComponents(bool buttonsDisabled = false)
+        {
+            ComponentBuilder builder = new ComponentBuilder();
+            builder.WithButton("Confirm", "confirmation", ButtonStyle.Success, emote: validEmoji, disabled: buttonsDisabled);
+            builder.WithButton("Deny", "denial", ButtonStyle.Danger, emote: invalidEmoji, disabled: buttonsDisabled);
+            return builder.Build();
+        }
+
+        private void ParseUsers(string message, out SocketGuildUser friend, out SocketGuildUser applicant)
+        {
+            // Has two capture groups for Discord Ids from the interaction message
+            string pattern = @"\<@(\d+)\>.*\<@(\d+)\>";
+            Regex regex = new Regex(pattern);
+            Match match = regex.Match(message);
+
+            friend = Context.Guild.GetUser(ulong.Parse(match.Groups[0].Value));
+            applicant = Context.Guild.GetUser(ulong.Parse(match.Groups[1].Value));
         }
     }
 }

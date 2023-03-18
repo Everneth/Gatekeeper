@@ -26,8 +26,6 @@ namespace Gatekeeper.Services
             List<WhitelistApp> apps = _databaseService.GetActiveWhitelistApps();
             foreach (WhitelistApp app in apps)
             {
-                // Populate the existing fields and grab the SocketUser from the client
-                app.User = _client.GetUser(app.ApplicantDiscordId);
                 appMap.Add(app.ApplicantDiscordId, app);
             }
         }
