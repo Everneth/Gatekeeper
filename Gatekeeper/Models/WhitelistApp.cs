@@ -13,6 +13,7 @@ namespace Gatekeeper.Models
 {
     public class WhitelistApp
     {
+        public int AppId { get; private set; }
         public string InGameName { get; private set; }
         public string Location { get; private set; }
         public int Age { get; private set; }
@@ -24,7 +25,7 @@ namespace Gatekeeper.Models
         public string SecretWord { get; set; }
         public ulong ApplicantDiscordId { get; set; }
         public SocketUser User { get; set; }
-        public Guid MinecraftUuid { get; private set; }
+        public Guid? MinecraftUuid { get; private set; }
         
         private string emptyChar = "\u200b";
 
@@ -34,9 +35,10 @@ namespace Gatekeeper.Models
             ApplicantDiscordId = user.Id;
         }
 
-        public WhitelistApp(string inGameName, string location, int age, string friend, string bannedElsewhere,
-            string lookingFor, string loveHate, string intro, string secretWord, ulong applicantDiscordId, Guid minecraftUuid)
+        public WhitelistApp(int appId, string inGameName, string location, int age, string friend, string bannedElsewhere,
+            string lookingFor, string loveHate, string intro, string secretWord, ulong applicantDiscordId, Guid? minecraftUuid)
         {
+            AppId = appId;
             InGameName = inGameName;
             Location = location;
             Age = age;
@@ -62,7 +64,7 @@ namespace Gatekeeper.Models
             {
                 // it's possible they had a correct name before and changed it to an invalid one, empty the properties
                 InGameName = null;
-                MinecraftUuid = Guid.Empty;
+                MinecraftUuid = null;
             }
 
             Location = location;
@@ -96,7 +98,7 @@ namespace Gatekeeper.Models
             builder.AddField("Minecraft IGN", InGameName ?? emptyChar);
             builder.AddField("Where are you from?", Location ?? emptyChar);
             builder.AddField("How old are you?", Age > 0 ? Age.ToString() : emptyChar);
-            builder.AddField("Do you know someone in our community? If yes, only enter their username and tag (Username#0000).", Friend ?? emptyChar);
+            builder.AddField("Do you know someone in our community?", Friend ?? emptyChar);
             builder.AddField("Have you been banned elsewhere before?", BannedElsewhere ?? emptyChar);
             builder.AddField("What are you looking for in a Minecraft community?", LookingFor ?? emptyChar);
             builder.AddField("What do you love and/or hate about Minecraft?", LoveHate ?? emptyChar);

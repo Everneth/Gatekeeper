@@ -1,4 +1,5 @@
 ﻿using Discord.WebSocket;
+using Gatekeeper.Extensions;
 using Gatekeeper.Models;
 using MySql.Data.MySqlClient;
 using System;
@@ -39,7 +40,7 @@ namespace Gatekeeper.Services
                     while (rdr.Read())
                     {
                         player.Id = rdr.GetInt32("player_id");
-                        player.Name = rdr.GetString("player_name");
+                        player.Name = rdr.SafeGetString("player_name");
                         player.Uuid = Guid.Parse(rdr.GetString("player_uuid"));
                         player.DiscordId = rdr.GetUInt64("discord_id");
                     }
@@ -79,17 +80,18 @@ namespace Gatekeeper.Services
                     while (rdr.Read())
                     {
                         // Populate the app and get the related SocketUser
-                        WhitelistApp app = new WhitelistApp(rdr.GetString("mc_ign"),
-                            rdr.GetString("location"),
+                        WhitelistApp app = new WhitelistApp(rdr.GetInt32("app_id"),
+                            rdr.SafeGetString("mc_ign"),
+                            rdr.SafeGetString("location"),
                             rdr.GetInt32("age"),
-                            rdr.GetString("friend"),
-                            rdr.GetString("looking_for"),
-                            rdr.GetString("has_been_banned"),
-                            rdr.GetString("love_hate"),
-                            rdr.GetString("intro"),
-                            rdr.GetString("secret_word"),
+                            rdr.SafeGetString("friend"),
+                            rdr.SafeGetString("looking_for"),
+                            rdr.SafeGetString("has_been_banned"),
+                            rdr.SafeGetString("love_hate"),
+                            rdr.SafeGetString("intro"),
+                            rdr.SafeGetString("secret_word"),
                             rdr.GetUInt64("applicant_discord_id"),
-                            rdr.GetGuid("mc_uuid"));
+                            rdr.SafeGetGuid("mc_uuid"));
                         app.User = _client.GetUser(app.ApplicantDiscordId);
                         apps.Add(app);
                     }
@@ -118,20 +120,31 @@ namespace Gatekeeper.Services
             con.Open();
 
             var stm = string.Format("UPDATE applications SET" +
-                $" mc_ign = {app.InGameName}," +
-                $" location = {app.Location}," +
+                $" mc_ign = @InGameName," +
+                $" location = @Location," +
                 $" age = {app.Age}," +
-                $" friend = {app.Friend}," +
-                $" looking_for = {app.LookingFor}," +
-                $" has_been_banned = {app.BannedElsewhere}," +
-                $" love_hate = {app.LoveHate}," +
-                $" intro = {app.Intro}," +
-                $" secret_word = {app.SecretWord}," +
-                $" mc_uuid = {app.MinecraftUuid}," +
+                $" friend = @Friend," +
+                $" looking_for = @LookingFor," +
+                $" has_been_banned = @BannedElsewhere," +
+                $" love_hate = @LoveHate," +
+                $" intro = @Intro," +
+                $" secret_word = @SecretWord," +
+                $" mc_uuid = \"{app.MinecraftUuid}\"" +
                 $" WHERE applicant_discord_id = {app.ApplicantDiscordId}");
-            var cmd = new MySqlCommand(stm, con);
+            using var cmd = new MySqlCommand(stm, con);
+
+            // Parametrizing the queries because we need quotations around strings only when they are not null
+            cmd.Parameters.AddWithValue("@InGameName", app.InGameName ?? (object)DBNull.Value);
+            cmd.Parameters.AddWithValue("@Location", app.Location ?? (object)DBNull.Value);
+            cmd.Parameters.AddWithValue("@Friend", app.Friend ?? (object)DBNull.Value);
+            cmd.Parameters.AddWithValue("@LookingFor", app.LookingFor ?? (object)DBNull.Value);
+            cmd.Parameters.AddWithValue("@BannedElsewhere", app.BannedElsewhere ?? (object)DBNull.Value);
+            cmd.Parameters.AddWithValue("@LoveHate", app.LoveHate ?? (object)DBNull.Value);
+            cmd.Parameters.AddWithValue("@Intro", app.Intro ?? (object)DBNull.Value);
+            cmd.Parameters.AddWithValue("@SecretWord", app.SecretWord ?? (object)DBNull.Value);
 
             int rowsAffected = cmd.ExecuteNonQuery();
+            Console.WriteLine();
             return rowsAffected > 0;
         }
 
@@ -156,14 +169,20 @@ namespace Gatekeeper.Services
             var cmd = new MySqlCommand(stm, con);
 
             MySqlDataReader reader = cmd.ExecuteReader();
-            return new EMIPlayer(reader.GetInt32("player_id"),
-                reader.GetString("player_name"),
-                Guid.Parse(reader.GetString("player_uuid")),
-                reader.GetString("alt_name"),
-                Guid.Parse(reader.GetString("alt_uuid")),
-                reader.GetDateTime("date_alt_added"),
-                reader.GetUInt64("discord_id"),
-                reader.GetDateTime("date_can_next_refer"));
+            if (reader.HasRows)
+            {
+                reader.Read();
+                return new EMIPlayer(reader.GetInt32("player_id"),
+                    reader.SafeGetString("player_name"),
+                    reader.SafeGetGuid("player_uuid"),
+                    reader.SafeGetString("alt_name"),
+                    reader.SafeGetGuid("alt_uuid"),
+                    reader.SafeGetDateTime("date_alt_added"),
+                    reader.GetUInt64("discord_id"),
+                    reader.SafeGetDateTime("date_can_next_refer"));
+            }
+
+            return null;
         }
 
         public bool UpdateEMIPlayer(EMIPlayer player)
@@ -173,15 +192,25 @@ namespace Gatekeeper.Services
 
             string dateFormat = "yyyy-MM-dd HH:mm:ss";
             var stm = $"UPDATE players SET" +
-                $" player_name = {player.Name}," +
-                $" player_uuid = {player.Uuid}," +
-                $" alt_name = {player.AltName}," +
-                $" alt_uuid = {player.AltUuid}," +
-                $" date_alt_added = {player.AltAdded.ToString(dateFormat)}," +
+                $" player_name = @Name," +
+                $" player_uuid = @PlayerUuid," +
+                $" alt_name = @AltName," +
+                $" alt_uuid = @AltUuid," +
+                $" date_alt_added = @AltAdded," +
                 $" discord_id = {player.DiscordId}," +
-                $" date_can_next_refer = {player.CanNextReferFriend.ToString(dateFormat)}" +
+                $" date_can_next_refer = @CanNextReferFriend" +
                 $" WHERE player_id = {player.Id}";
-            var cmd = new MySqlCommand(stm, con);
+            using var cmd = new MySqlCommand(stm, con);
+
+            // Parametrizing the queries because we need quotations around strings only when they are not null
+            cmd.Parameters.AddWithValue("@Name", player.Name ?? (object)DBNull.Value);
+            cmd.Parameters.AddWithValue("@PlayerUuid", player.Uuid ?? (object)DBNull.Value);
+            cmd.Parameters.AddWithValue("@AltName", player.AltName ?? (object)DBNull.Value);
+            cmd.Parameters.AddWithValue("@AltUuid", player.AltUuid ?? (object)DBNull.Value);
+            cmd.Parameters.AddWithValue("@AltAdded",
+                player.AltAdded != null ? player.CanNextReferFriend.Value.ToString(dateFormat) : (object)DBNull.Value);
+            cmd.Parameters.AddWithValue("@CanNextReferFriend",
+                player.CanNextReferFriend != null ? player.CanNextReferFriend.Value.ToString(dateFormat) : (object)DBNull.Value);
 
             return cmd.ExecuteNonQuery() > 0;
         }

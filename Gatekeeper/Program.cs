@@ -64,6 +64,9 @@ namespace Gatekeeper
         {
 			// cache all members of the Everneth discord
 			await _client.GetGuild(_config.BotConfig.GuildId).DownloadUsersAsync();
+
+			// This is called here because loading the apps requires members already be cached
+			_whitelist.Load();
 		}
 
         private Task Log(LogMessage msg)

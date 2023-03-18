@@ -18,10 +18,9 @@ namespace Gatekeeper.Services
             _databaseService = database;
             _ranking = ranking;
             appMap = new Dictionary<ulong, WhitelistApp>();
-            Load();
         }
 
-        private void Load()
+        public void Load()
         { 
             List<WhitelistApp> apps = _databaseService.GetActiveWhitelistApps();
             foreach (WhitelistApp app in apps)

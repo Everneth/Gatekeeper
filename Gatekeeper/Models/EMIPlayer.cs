@@ -7,15 +7,15 @@ namespace Gatekeeper.Models
     {
         public int Id { get; set; }
         public string Name { get; set; }
-        public Guid Uuid { get; set; }
+        public Guid? Uuid { get; set; }
         public string AltName { get; set; }
-        public Guid AltUuid { get; set; }
-        public DateTime AltAdded { get; set; }
+        public Guid? AltUuid { get; set; }
+        public DateTime? AltAdded { get; set; }
         public ulong DiscordId { get; set; }
-        public DateTime CanNextReferFriend { get; set; }
+        public DateTime? CanNextReferFriend { get; set; }
 
         public EMIPlayer() {}
-        public EMIPlayer(int id, string name, Guid uuid, ulong discordid)
+        public EMIPlayer(int id, string name, Guid? uuid, ulong discordid)
         {
             Id = id;
             Name = name;
@@ -23,8 +23,8 @@ namespace Gatekeeper.Models
             DiscordId = discordid;
         }
 
-        public EMIPlayer(int id, string name, Guid uuid, string altName, Guid altUuid,
-            DateTime altAdded, ulong discordId, DateTime canNextConfirmFriend)
+        public EMIPlayer(int id, string name, Guid? uuid, string altName, Guid? altUuid,
+            DateTime? altAdded, ulong discordId, DateTime? canNextReferFriend)
         {
             Id = id;
             Name = name;
@@ -33,7 +33,7 @@ namespace Gatekeeper.Models
             AltUuid = altUuid;
             AltAdded = altAdded;
             DiscordId = discordId;
-            CanNextReferFriend = canNextConfirmFriend;
+            CanNextReferFriend = canNextReferFriend;
         }
     }
 }
