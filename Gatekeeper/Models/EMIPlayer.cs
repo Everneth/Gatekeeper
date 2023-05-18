@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Security.Permissions;
 
 namespace Gatekeeper.Models
 {
@@ -13,6 +12,8 @@ namespace Gatekeeper.Models
         public DateTime? AltAdded { get; set; }
         public ulong DiscordId { get; set; }
         public DateTime? CanNextReferFriend { get; set; }
+        public EMIPlayer ReferredBy { get; set; }
+        public DateTime? DateReferred { get; set; }
 
         public EMIPlayer() {}
         public EMIPlayer(int id, string name, Guid? uuid, ulong discordid)
@@ -24,7 +25,8 @@ namespace Gatekeeper.Models
         }
 
         public EMIPlayer(int id, string name, Guid? uuid, string altName, Guid? altUuid,
-            DateTime? altAdded, ulong discordId, DateTime? canNextReferFriend)
+            DateTime? altAdded, ulong discordId, DateTime? canNextReferFriend, EMIPlayer referredBy,
+            DateTime? dateReferred)
         {
             Id = id;
             Name = name;
@@ -34,6 +36,8 @@ namespace Gatekeeper.Models
             AltAdded = altAdded;
             DiscordId = discordId;
             CanNextReferFriend = canNextReferFriend;
+            ReferredBy = referredBy;
+            DateReferred = dateReferred;
         }
     }
 }
