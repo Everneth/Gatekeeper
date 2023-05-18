@@ -1,6 +1,7 @@
 ﻿using Discord;
 using Discord.Interactions;
 using Discord.WebSocket;
+using Gatekeeper.Commands;
 using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Linq;
@@ -41,6 +42,7 @@ namespace Gatekeeper.Services
             try
             {
                 await _interactions.RegisterCommandsToGuildAsync(_config.BotConfig.GuildId);
+                await _interactions.AddModulesGloballyAsync(false, modules: _interactions.Modules.Where(module => module.Name == "AboutModule").ToArray());
             }
             catch (Exception error)
             {
