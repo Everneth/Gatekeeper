@@ -1,10 +1,7 @@
 ﻿using Discord;
 using Discord.WebSocket;
-using Gatekeeper.Models.Modals;
 using System;
-using System.Collections.Generic;
 using System.Net;
-using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Threading.Tasks;
@@ -23,6 +20,7 @@ namespace Gatekeeper.Models
         public string LoveHate { get; private set; }
         public string Intro { get; private set; }
         public string SecretWord { get; set; }
+        public bool IsApproved { get; set; }
         public ulong ApplicantDiscordId { get; set; }
         public SocketUser User { get; set; }
         public Guid? MinecraftUuid { get; private set; }
@@ -36,7 +34,7 @@ namespace Gatekeeper.Models
         }
 
         public WhitelistApp(int appId, string inGameName, string location, int age, string friend, string bannedElsewhere,
-            string lookingFor, string loveHate, string intro, string secretWord, ulong applicantDiscordId, Guid? minecraftUuid)
+            string lookingFor, string loveHate, string intro, string secretWord, bool isApproved, ulong applicantDiscordId, Guid? minecraftUuid)
         {
             AppId = appId;
             InGameName = inGameName;
@@ -48,6 +46,7 @@ namespace Gatekeeper.Models
             LoveHate = loveHate;
             Intro = intro;
             SecretWord = secretWord;
+            IsApproved = isApproved;
             ApplicantDiscordId = applicantDiscordId;
             MinecraftUuid = minecraftUuid;
         }
@@ -125,6 +124,11 @@ namespace Gatekeeper.Models
                 }
             }
 
+        }
+
+        public void ApproveApplication()
+        {
+            IsApproved = true;
         }
 
         public bool InfoQuestionsCompleted()

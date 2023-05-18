@@ -35,12 +35,13 @@ namespace Gatekeeper.Commands
         public async Task BeginApplication()
         {
             SocketGuildUser user = Context.Guild.GetUser(Context.User.Id);
-            if (_whitelist.UserHasActiveApplication(user.Id))
+            // We do not want users to open a second application before the vote on their current one has concluded
+            if (_whitelist.UserHasActiveApplication(user.Id) || user.Roles.Where(role => role.Name == "Pending").Count() > 0)
             {
                 await RespondAsync("You already have an active application!", ephemeral: true);
                 return;
             }
-            else if (user.Roles.Where(role => role.Name == "Citizen").Count() > 0 || _database.PlayerExists(user))
+            else if (user.Roles.Where(role => role.Name == "Citizen").Count() > 0)
             {
                 await RespondAsync("You're already whitelisted, you don't need to apply!", ephemeral: true);
                 return;
@@ -208,6 +209,7 @@ namespace Gatekeeper.Commands
                 message.Components = new ComponentBuilder().Build();
                 message.Content = "Application Complete!";
             });
+            _database.InsertEMIPlayer(app);
             await Context.Channel.SendMessageAsync("We have received your application! Either get to makin' conversation or have your friend confirm they know you!");
             
             // The user has claimed they have a friend, friend confirmation message needs to be sent
@@ -247,9 +249,9 @@ namespace Gatekeeper.Commands
 
                     // Check if user's referral restriction has expired
                     EMIPlayer friendPlayer = _database.GetEMIPlayer(friendUser.Id);
-                    if (friendPlayer != null && friendPlayer.CanNextReferFriend != null && friendPlayer.CanNextReferFriend > DateTime.UtcNow)
+                    if (friendPlayer != null && friendPlayer.CanNextReferFriend != null && friendPlayer.CanNextReferFriend > DateTime.Now)
                     {
-                        uint unixEpoch = (uint)friendPlayer.CanNextReferFriend.Value.Subtract(new DateTime(1970, 1, 1)).TotalSeconds;
+                        long unixEpoch = new DateTimeOffset(friendPlayer.CanNextReferFriend.Value.ToUniversalTime()).ToUnixTimeSeconds();
                         modal.Fourth = "Nope";
                         await FollowupAsync($"{friendUser.Mention} cannot confirm another friend until <t:{unixEpoch}:f>." +
                             $" If you know someone else you may use them instead.", ephemeral: true);
@@ -309,12 +311,11 @@ namespace Gatekeeper.Commands
 
             await ModifyOriginalResponseAsync(message =>
             {
-                uint unixEpoch = (uint)DateTime.UtcNow.AddDays(30.0f).Subtract(new DateTime(1970, 1, 1)).TotalSeconds;
-                message.Content = $"{friend.Mention} has confirmed {applicant.Mention} as a friend. Friend accountability ends <t:{unixEpoch}:f> your time.";
+                message.Content = $"{friend.Mention} has confirmed {applicant.Mention} as a friend.";
                 message.Components = BuildFriendConfirmationComponents(true);
             });
 
-            // Add pending which starts the whitelist vote
+            // Add pending which starts the whitelist vote and insert 
             await applicant.AddRoleAsync(Context.Guild.Roles.Where(role => role.Name == "Pending").First());
 
             EMIPlayer friendPlayer = _database.GetEMIPlayer(friend.Id);
@@ -341,8 +342,12 @@ namespace Gatekeeper.Commands
                 return;
             }
 
-            // Just delete the message if they have denied friend accountability and message the applicant
+            // Just delete the message if they have denied friend accountability, remove accountability, and message the applicant
             await DeleteOriginalResponseAsync();
+            EMIPlayer applicantPlayer = _database.GetEMIPlayer(applicant.Id);
+            applicantPlayer.ReferredBy = null;
+            applicantPlayer.DateReferred = null;
+            _database.UpdateEMIPlayer(applicantPlayer);
             await applicant.SendMessageAsync($"{friend.Mention} has denied you as a friend. You will have to speak to our members to trigger a whitelist vote instead.");
         }
 
@@ -399,6 +404,30 @@ namespace Gatekeeper.Commands
 
             friend = Context.Guild.GetUser(ulong.Parse(match.Groups[1].Value));
             applicant = Context.Guild.GetUser(ulong.Parse(match.Groups[2].Value));
+        }
+
+        [SlashCommand("sendapplymessage", "Send the application message for the apply channel.")]
+        public async Task SendApplyMessage()
+        {
+            var channel = Context.Guild.GetTextChannel(679141347994894336);
+            var components = new ComponentBuilder();
+            components.WithButton("Apply now!", "apply");
+            components.WithButton("Everneth's Rules", style: ButtonStyle.Link, url: "https://everneth.com/rules");
+            await channel.SendMessageAsync("Hey there! \r\nMy name is Jasper. Welcome to the <:everneth:230340926608900096> **Everneth SMP** Discord server!" +
+                "\r\nTo get you started I have some information on how to apply using discord! " +
+                "Just follow these simple steps to get your application in.\r\n" +
+                "\r\n**1)** Please visit our website and at a minimum read Sections 1, 2, 4, and 5 of the rules (linked below). There are more in the rules but the rest of the sections cover rules for staff and how to change our rules." +
+                "\r\n**2)** Make note of the secret word (Found in the rules!). You will need this for your application to be accepted." +
+                "\r\n**3)** When ready, click the 'Apply now!' button below." +
+                "\r\n**4)** Answer the questions in the form provided by the bot and when ready, submit your application!" +
+                "\r\n**5)** Once you put your app in, start chatting in our discord! I will begin keeping tabs on you and will move you to Pending once you have met the requirements! (Shouldn't take too long!)" +
+                "\r\n**If you have a friend, they can confirm they know you and you skip to pending!**" +
+                "\r\n**6)** Once you meet requirements, staff will vote on your application in Discord. If approved, you will get changed to Citizen automatically and whitelisted." +
+                "\r\n\r\n**And thats it!** Good luck!\r\n" +
+                "\r\n***Jasper** - Your friendly guild bouncer and welcoming committee*\r\n" +
+                "\r\n**PS: **__If you are already whitelisted and still received this message, please login to the game and use__ `/discord sync` __to link your account!__",
+                components: components.Build());
+            await RespondAsync("sent", ephemeral: true);
         }
     }
 }
