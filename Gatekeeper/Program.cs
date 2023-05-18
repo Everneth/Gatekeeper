@@ -1,13 +1,11 @@
 ﻿using Discord;
 using Discord.Commands;
 using Discord.Interactions;
-using Discord.Net;
 using Discord.WebSocket;
 using Gatekeeper.Events;
 using Gatekeeper.Models;
 using Gatekeeper.Services;
 using Microsoft.Extensions.DependencyInjection;
-using Newtonsoft.Json;
 using System;
 using System.Threading.Tasks;
 
@@ -15,6 +13,8 @@ namespace Gatekeeper
 {
     class Program
     {
+		public const string VERSION = "2.0.0";
+
 		private DiscordSocketClient _client;
 		private CommandService _commands;
 		private RankingService _ranking;
@@ -83,7 +83,7 @@ namespace Gatekeeper
 					{
 						AlwaysDownloadUsers = true,
 						MessageCacheSize = 3000,
-						GatewayIntents = GatewayIntents.All
+						GatewayIntents = GatewayIntents.AllUnprivileged | GatewayIntents.GuildMembers | GatewayIntents.GuildMessages,
 					}))
 				.AddSingleton<InteractionService>()
 				.AddSingleton<InteractionHandlerService>()
