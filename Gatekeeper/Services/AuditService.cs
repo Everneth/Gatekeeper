@@ -13,11 +13,12 @@ namespace Gatekeeper.Services
     {
         private readonly DiscordSocketClient _client;
         private readonly DataService _data;
+        private readonly ConfigService _config;
         public List<ulong> IgnoredChannelIds { get; }
 
-        public AuditService(IServiceProvider services)
+        public AuditService(DiscordSocketClient client, DataService data, ConfigService config)
         {
-            _client = services.GetRequiredService<DiscordSocketClient>();
+            _client = client;
             _client.MessageDeleted += LogMessageDeleted;
             _client.MessageUpdated += LogMessageUpdated;
             _client.GuildMemberUpdated += LogGuildMemberUpdated;
@@ -27,14 +28,15 @@ namespace Gatekeeper.Services
             _client.UserJoined += LogUserJoined;
             _client.UserLeft += LogUserLeft;
 
-            _data = services.GetRequiredService<DataService>();
+            _data = data;
+            _config = config;
             IgnoredChannelIds = _data.Load("ignored_channels", IgnoredChannelIds);
         }
 
         private async Task SendAudit(string audit, string emote)
         {
             TimeSpan currentTime = DateTime.Now.TimeOfDay;
-            var socketGuildChannel = _client.GetGuild(177976693942779904).Channels.FirstOrDefault(x => x.Name.Equals("admin-log"));
+            var socketGuildChannel = _client.GetGuild(_config.BotConfig.GuildId).Channels.FirstOrDefault(x => x.Name.Equals("admin-log"));
             var channel = socketGuildChannel.Guild.GetTextChannel(socketGuildChannel.Id);
 
             await channel.SendMessageAsync($"{emote} `[{currentTime:hh\\:mm\\:ss}]` {audit}", allowedMentions: AllowedMentions.None);
@@ -57,7 +59,8 @@ namespace Gatekeeper.Services
         private async Task LogMessageUpdated(Cacheable<IMessage, ulong> cachedMessage, SocketMessage newMessage, ISocketMessageChannel channel)
         {
             var message = cachedMessage.Value;
-            if (message.Content == null ||
+            if (message == null ||
+                message.Content == null ||
                 IgnoredChannelIds.Contains(channel.Id) ||
                 message.Content.Equals(newMessage.Content)) return;
 

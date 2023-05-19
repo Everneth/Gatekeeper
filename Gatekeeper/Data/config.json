@@ -5,5 +5,7 @@
   "database_username": "",
   "database_ip": "",
   "database": "",
-  "password": ""
+  "password": "",
+  "apps_channel_id": 0,
+  "general_channel_id": 0
 }

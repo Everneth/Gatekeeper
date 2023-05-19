@@ -68,7 +68,7 @@ namespace Gatekeeper.Services
             int wordCount = 0;
 
             // count "words"
-            foreach ( string word in content.Split(' '))
+            foreach (string word in content.Split(' '))
             {
                 ++wordCount;
             }
@@ -95,48 +95,37 @@ namespace Gatekeeper.Services
                 if (numChars > 3)
                     numWords++;
             }
-            if (numWords >= 3)
-                return true;
-            else
-                return false;
+            return numWords >= 3;
         }
 
         private void Score(string message, SocketUser user)
         {
-            int score = 0;
             var applicant = _applicants.Find(u => u.DiscordId == user.Id);
 
             applicant.Score += ((message.Length / _config.RankingConfig.BaseCharReq) * _config.RankingConfig.AdditionalCharsScore) + _config.RankingConfig.BaseScore;
 
             if (applicant.Score >= _config.RankingConfig.PromoThreshold)
-                Promote(user as SocketGuildUser);
+            {
+                // Our applicant has hit the promotion threshold, give them the pending rank
+                var role = (user as SocketGuildUser).Guild.Roles.SingleOrDefault(r => r.Name == "Pending");
+                (user as SocketGuildUser).AddRoleAsync(role);
+            }
             else
                 _data.Save("applicants", _applicants);
         }
 
-        private void Promote(SocketGuildUser user)
-        {
-            var role = user.Guild.Roles.SingleOrDefault(r => r.Name == "Pending");
-            user.AddRoleAsync(role);
-            user.RemoveRoleAsync(user.Guild.Roles.SingleOrDefault(r => r.Name == "Applicant"));
-
-            // Once added to pending group, remove from ranking service
-            // No more tracking needed
-            if(Remove(user))
-                _data.Save("applicants", _applicants);
-        }
         // debug command logic
-        public bool Remove(SocketGuildUser user)
+        public bool Remove(SocketUser user)
         {
             var appToRemove = Applicants.SingleOrDefault(a => a.DiscordId == user.Id);
-            if (appToRemove.Equals(null))
+            if (appToRemove is null)
                 return false;
             else { Applicants.Remove(appToRemove); return true; }
         }
 
         public bool Remove(Applicant user)
         {
-            if (user.Equals(null))
+            if (user is null)
                 return false;
             else { Applicants.Remove(user); return true; }
         }
@@ -177,6 +166,11 @@ namespace Gatekeeper.Services
             _data.Save("applicants", _applicants);
             return "Clean completed. There were " + numSuccesses +" orphaned data. " +
                 "Error(s): " + numErrors;
+        }
+
+        public void Save()
+        {
+            _data.Save("applicants", _applicants);
         }
     }
 }

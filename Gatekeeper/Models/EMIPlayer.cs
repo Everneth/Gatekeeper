@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace Gatekeeper.Models
 {
@@ -8,18 +6,38 @@ namespace Gatekeeper.Models
     {
         public int Id { get; set; }
         public string Name { get; set; }
-        public string UUID { get; set; }
-        public int MemberId { get; set; }
-        public long DiscordId { get; set; }
+        public Guid? Uuid { get; set; }
+        public string AltName { get; set; }
+        public Guid? AltUuid { get; set; }
+        public DateTime? AltAdded { get; set; }
+        public ulong DiscordId { get; set; }
+        public DateTime? CanNextReferFriend { get; set; }
+        public EMIPlayer ReferredBy { get; set; }
+        public DateTime? DateReferred { get; set; }
 
         public EMIPlayer() {}
-        public EMIPlayer(int id, string name, string uuid, int memberid, long discordid)
+        public EMIPlayer(int id, string name, Guid? uuid, ulong discordid)
         {
             Id = id;
             Name = name;
-            UUID = uuid;
-            MemberId = memberid;
+            Uuid = uuid;
             DiscordId = discordid;
+        }
+
+        public EMIPlayer(int id, string name, Guid? uuid, string altName, Guid? altUuid,
+            DateTime? altAdded, ulong discordId, DateTime? canNextReferFriend, EMIPlayer referredBy,
+            DateTime? dateReferred)
+        {
+            Id = id;
+            Name = name;
+            Uuid = uuid;
+            AltName = altName;
+            AltUuid = altUuid;
+            AltAdded = altAdded;
+            DiscordId = discordId;
+            CanNextReferFriend = canNextReferFriend;
+            ReferredBy = referredBy;
+            DateReferred = dateReferred;
         }
     }
 }
