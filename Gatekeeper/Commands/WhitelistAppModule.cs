@@ -420,12 +420,11 @@ namespace Gatekeeper.Commands
                 "\r\n**2)** Make note of the secret word (Found in the rules!). You will need this for your application to be accepted." +
                 "\r\n**3)** When ready, click the 'Apply now!' button below." +
                 "\r\n**4)** Answer the questions in the form provided by the bot and when ready, submit your application!" +
-                "\r\n**5)** Once you put your app in, start chatting in our discord! I will begin keeping tabs on you and will move you to Pending once you have met the requirements! (Shouldn't take too long!)" +
+                "\r\n**5)** Once you put your app in, start chatting in our Discord! I will begin keeping tabs on you and will move you to Pending once you have met the requirements! (Shouldn't take too long!)" +
                 "\r\n**If you have a friend, they can confirm they know you and you skip to pending!**" +
                 "\r\n**6)** Once you meet requirements, staff will vote on your application in Discord. If approved, you will get changed to Citizen automatically and whitelisted." +
                 "\r\n\r\n**And thats it!** Good luck!\r\n" +
-                "\r\n***Jasper** - Your friendly guild bouncer and welcoming committee*\r\n" +
-                "\r\n**PS: **__If you are already whitelisted and still received this message, please login to the game and use__ `/discord sync` __to link your account!__",
+                "\r\n***Jasper** - Your friendly guild bouncer and welcoming committee*\r\n",
                 components: components.Build());
             await RespondAsync("sent", ephemeral: true);
         }
