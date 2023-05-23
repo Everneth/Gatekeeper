@@ -409,7 +409,7 @@ namespace Gatekeeper.Commands
         [SlashCommand("sendapplymessage", "Send the application message for the apply channel.")]
         public async Task SendApplyMessage()
         {
-            var channel = Context.Guild.GetTextChannel(679141347994894336);
+            var channel = Context.Channel;
             var components = new ComponentBuilder();
             components.WithButton("Apply now!", "apply");
             components.WithButton("Everneth's Rules", style: ButtonStyle.Link, url: "https://everneth.com/rules");
