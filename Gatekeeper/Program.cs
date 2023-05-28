@@ -81,10 +81,10 @@ namespace Gatekeeper
 				.AddSingleton(new DiscordSocketClient(
 					new DiscordSocketConfig
 					{
-						AlwaysDownloadUsers = true,
-						MessageCacheSize = 3000,
-						GatewayIntents = GatewayIntents.AllUnprivileged | GatewayIntents.GuildMembers | GatewayIntents.GuildMessages,
-					}))
+                        AlwaysDownloadUsers = true,
+                        MessageCacheSize = 3000,
+                        GatewayIntents = GatewayIntents.AllUnprivileged | GatewayIntents.GuildMembers | GatewayIntents.MessageContent
+                    }))
 				.AddSingleton<InteractionService>()
 				.AddSingleton<InteractionHandlerService>()
 				.AddSingleton<RankingService>()

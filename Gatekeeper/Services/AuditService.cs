@@ -46,7 +46,7 @@ namespace Gatekeeper.Services
         {
             if (cachedMessage.Value == null || IgnoredChannelIds.Contains(channel.Id)) return;
             
-            var message = cachedMessage.Value;
+            var message = await cachedMessage.GetOrDownloadAsync();
             string audit = $"**{message.Author}'s** message in <#{channel.Id}> was deleted. Content: \n{message.Content}";
             foreach (var attachment in message.Attachments)
             {
