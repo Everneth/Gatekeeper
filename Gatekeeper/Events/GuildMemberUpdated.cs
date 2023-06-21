@@ -29,7 +29,7 @@ namespace Gatekeeper.Events
             {
                 // If the user has gained the pending role, we can close the application
                 SocketRole newRole = after.Roles.Except(before.Roles).First();
-                if (newRole.Name == "Pending")
+                if (newRole.Name == "Pending" && _whitelist.UserHasActiveApplication(after.Id))
                 {
                     _whitelist.CloseApplication(after);
                 }
