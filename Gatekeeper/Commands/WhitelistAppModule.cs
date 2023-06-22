@@ -126,11 +126,11 @@ namespace Gatekeeper.Commands
                 })
                 .AddTextInput(new TextInputBuilder()
                 {
-                    Label = "Know someone here? Enter username & discrim",
+                    Label = "Know someone here? Enter just their username",
                     CustomId = "fourth",
-                    Placeholder = "e.g. Friend#1234",
+                    Placeholder = "e.g. wumpus",
                     MinLength = 2,
-                    MaxLength = 60,
+                    MaxLength = 32,
                     Value = app.Friend
                 });
             await RespondWithModalAsync(builder.Build());
@@ -216,7 +216,7 @@ namespace Gatekeeper.Commands
             if (app.Friend.Contains('@'))
             {
                 channel = guild.GetTextChannel(_config.BotConfig.GeneralChannelId);
-                await channel.SendMessageAsync($"Hey {app.Friend}, {app.User.Mention} has claimed you as a friend. Please press one of the buttons to confirm/deny them as a friend.",
+                await channel.SendMessageAsync($"Hey {app.Friend}, {app.User.Mention} has claimed you as a friend. Please press one of the buttons to confirm/deny them.",
                     components: BuildFriendConfirmationComponents());
             }
         }
@@ -226,40 +226,34 @@ namespace Gatekeeper.Commands
         {
             await DeferAsync();
             WhitelistApp app = _whitelist.GetApp(Context.User.Id);
-            string userWithDiscrim = modal.Fourth;
+            string username = modal.Fourth;
+            // Get user matching username and discrim, will return null if they do not exist
+            var friend = _client.GetGuild(_config.BotConfig.GuildId).Users.FirstOrDefault(user => user.Username == username);
             modal.Fourth = "Nope";
-            // Default friend field to 'Nope' unless we can find a valid discord user by the name and discriminator
-            if (userWithDiscrim.Contains('#'))
+            if (friend != null)
             {
-                string[] username = userWithDiscrim.Split('#');
-                // Get user matching username and discrim, will return null if they do not exist
-                var user = _client.GetUser(username[0], username[1]);
-                if (user != null)
+                // Check that the user is a citizen
+                if (friend.Roles.Where(role => role.Name.Equals("Citizen")).Count() > 0)
                 {
-                    var friendUser = _client.GetGuild(_config.BotConfig.GuildId).GetUser(user.Id);
-                    // Check that the user is a citizen
-                    if (friendUser.Roles.Where(role => role.Name.Equals("Citizen")).Count() > 0)
-                    {
-                        modal.Fourth = friendUser.Mention;
-                    }
-                    else
-                    {
-                        await FollowupAsync("The member you specified is not a citizen!", ephemeral: true);
-                    }
-
-                    // Check if user's referral restriction has expired
-                    EMIPlayer friendPlayer = _database.GetEMIPlayer(friendUser.Id);
-                    if (friendPlayer != null && friendPlayer.CanNextReferFriend != null && friendPlayer.CanNextReferFriend > DateTime.Now)
-                    {
-                        long unixEpoch = new DateTimeOffset(friendPlayer.CanNextReferFriend.Value.ToUniversalTime()).ToUnixTimeSeconds();
-                        modal.Fourth = "Nope";
-                        await FollowupAsync($"{friendUser.Mention} cannot confirm another friend until <t:{unixEpoch}:f>." +
-                            $" If you know someone else you may use them instead.", ephemeral: true);
-                    }
+                    modal.Fourth = friend.Mention;
                 }
                 else
-                    await FollowupAsync($"Could not find user {userWithDiscrim}", ephemeral: true);
+                {
+                    await FollowupAsync("The member you specified is not a citizen!", ephemeral: true);
+                }
+
+                // Check if user's referral restriction has expired
+                EMIPlayer friendPlayer = _database.GetEMIPlayer(friend.Id);
+                if (friendPlayer != null && friendPlayer.CanNextReferFriend != null && friendPlayer.CanNextReferFriend > DateTime.Now)
+                {
+                    long unixEpoch = new DateTimeOffset(friendPlayer.CanNextReferFriend.Value.ToUniversalTime()).ToUnixTimeSeconds();
+                    modal.Fourth = "Nope";
+                    await FollowupAsync($"{friend.Mention} cannot confirm another friend until <t:{unixEpoch}:f>." +
+                        $" If you know someone else you may use them instead.", ephemeral: true);
+                }
             }
+            else
+                await FollowupAsync($"Could not find user {username}", ephemeral: true);
 
             app.FillInfoFromModal(modal.First, modal.Second, modal.Third, modal.Fourth);
             await ModifyOriginalResponseAsync(message =>
@@ -398,7 +392,8 @@ namespace Gatekeeper.Commands
             string message = (Context.Interaction as SocketMessageComponent).Message.Content;
 
             // Has two capture groups for Discord Ids from the interaction message
-            string pattern = @"\<@!(\d+)\>.*\<@!(\d+)\>";
+            // Mentions will be kept in raw text in the form of <@12345> or <@!12345> if they're nicked
+            string pattern = @"\<@!?(\d+)\>.*\<@!?(\d+)\>";
             Regex regex = new Regex(pattern);
             Match match = regex.Match(message);
 
