@@ -228,7 +228,8 @@ namespace Gatekeeper.Commands
             WhitelistApp app = _whitelist.GetApp(Context.User.Id);
             string username = modal.Fourth;
             // Get user matching username and discrim, will return null if they do not exist
-            var friend = _client.GetGuild(_config.BotConfig.GuildId).Users.FirstOrDefault(user => user.Username == username);
+            var friend = _client.GetGuild(_config.BotConfig.GuildId).Users.FirstOrDefault(
+                user => user.Username.Equals(username, StringComparison.OrdinalIgnoreCase));
             modal.Fourth = "Nope";
             if (friend != null)
             {
