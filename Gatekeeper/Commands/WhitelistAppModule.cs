@@ -51,7 +51,8 @@ namespace Gatekeeper.Commands
             try
             {
                 WhitelistApp emptyApp = new WhitelistApp(Context.User);
-                await channel.SendMessageAsync("Here is your application preview. Use the buttons to fill out the form and hit the green button when you feel it's ready to send off!",
+                await channel.SendMessageAsync("Here is your application preview. Use the buttons to fill out the form and hit the green button when you feel it's ready to send off! " +
+                    "Make sure you at least read sections 1, 2, 4, and 5 of our rules at <https://everneth.com/rules>. That's where you'll find the secret word!",
                     embed: emptyApp.BuildApplicationEmbed(),
                     components: BuildApplicationComponents());
                 _whitelist.BeginApplication(user as SocketUser);
@@ -210,7 +211,8 @@ namespace Gatekeeper.Commands
                 message.Content = "Application Complete!";
             });
             _database.InsertEMIPlayer(app);
-            await Context.Channel.SendMessageAsync("We have received your application! Either get to makin' conversation or have your friend confirm they know you!");
+            await Context.Channel.SendMessageAsync("We have received your application! Remember you have to talk a bit in #town-square or have your friend confirm they know you " +
+                "to get whitelisted!");
             
             // The user has claimed they have a friend, friend confirmation message needs to be sent
             if (app.Friend.Contains('@'))
