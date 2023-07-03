@@ -1,20 +1,28 @@
 ﻿using Discord;
 using Discord.WebSocket;
-using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace Gatekeeper.Services
 {
     public class AuditService
     {
+        // Controls how long the role change thread will sleep for
+        private const int MINUTES_BETWEEN_DISPATCH = 2;
+        private readonly Mutex mutex = new Mutex();
+
         private readonly DiscordSocketClient _client;
         private readonly DataService _data;
         private readonly ConfigService _config;
         public List<ulong> IgnoredChannelIds { get; }
+        
+        // List of tuples used to compare difference in roles 
+        private readonly List<SocketGuildUser> cachedUsers = new List<SocketGuildUser>();
+        private readonly List<SocketGuildUser> updatedUsers = new List<SocketGuildUser>();
 
         public AuditService(DiscordSocketClient client, DataService data, ConfigService config)
         {
@@ -27,6 +35,11 @@ namespace Gatekeeper.Services
             _client.UserUnbanned += LogUserPardoned;
             _client.UserJoined += LogUserJoined;
             _client.UserLeft += LogUserLeft;
+
+            // To reduce audit spam for role changes (which often happen in bulk) we spawn a thread to
+            // dispatch bunched changes every 10 minutes
+            Thread thread = new Thread(DispatchRoleChanges);
+            thread.Start();
 
             _data = data;
             _config = config;
@@ -79,32 +92,30 @@ namespace Gatekeeper.Services
         {
             var beforeValue = before.Value;
             StringBuilder builder = new StringBuilder();
-            builder.Append($"**{beforeValue}'s** ");
 
             if (beforeValue.Roles.Count != after.Roles.Count)
             {
-                builder.AppendLine("roles have changed.");
-                if (beforeValue.Roles.Count < after.Roles.Count)
+                // Acquire mutex lock for shared lists
+                mutex.WaitOne();
+                if (cachedUsers.FirstOrDefault(user => user.Id == beforeValue.Id) == null)
                 {
-                    SocketRole newRole = after.Roles.Except(before.Value.Roles).First();
-                    builder.AppendLine($"Gained Role: {newRole.Mention}");
+                    // Save the cached before user and the new updated user object
+                    cachedUsers.Add(beforeValue);
+                    updatedUsers.Add(after);
                 }
                 else
                 {
-                    SocketRole lostRole = beforeValue.Roles.Except(after.Roles).First();
-                    builder.AppendLine($"Lost Role: {lostRole.Mention}");
+                    // Remove latest reference to updated user and add new one
+                    updatedUsers.RemoveAll(user => user.Id == after.Id);
+                    updatedUsers.Add(after);
                 }
-
-                // skip the @everyone role and sort from highest ranking role to lowest
-                builder.Append($"Current roles: ");
-
-                foreach (var role in after.Roles.Skip(1).OrderByDescending(x => x.Position))
-                {
-                    builder.Append($"{role.Mention} ");
-                }
+                // Dispatch thread can now take lists if needed
+                mutex.ReleaseMutex();
+                return;
             }
             else if (beforeValue.Nickname != null || after.Nickname != null)
             {
+                builder.Append($"**{beforeValue}'s** ");
                 // use the null state of the nickname to determine what nickname was changed to, if changed at all
                 if (beforeValue.Nickname == null && after.Nickname != null)
                 {
@@ -153,6 +164,55 @@ namespace Gatekeeper.Services
         private async Task LogUserLeft(SocketGuild guild, SocketUser user)
         {
             await SendAudit($"**{user}** left the server. Total Guild Members: **{guild.MemberCount}**", ":door:");
+        }
+
+        private void DispatchRoleChanges()
+        {
+            while(true)
+            {
+                // Acquire mutex lock for shared lists
+                mutex.WaitOne();
+                foreach (var cachedUser in cachedUsers)
+                {
+                    var user = updatedUsers.First(user => user.Id == cachedUser.Id);
+                    StringBuilder audit = new StringBuilder();
+                    audit.AppendLine($"**{user}'s** roles have changed.");
+
+                    var rolesGained = user.Roles.Except(cachedUser.Roles).ToList();
+                    var rolesLost = cachedUser.Roles.Except(user.Roles).ToList();
+
+                    // Their roles were added/removed at some point but ultimately didn't change
+                    if (rolesGained.Count == 0 && rolesLost.Count == 0)
+                        continue;
+
+                    if (rolesGained.Count != 0)
+                    {
+                        audit.Append("Gained: ");
+                        rolesGained.ForEach(role => audit.Append($"{role.Mention} "));
+                        audit.AppendLine();
+                    }
+
+                    if (rolesLost.Count != 0)
+                    {
+                        audit.Append("Lost: ");
+                        rolesLost.ForEach(role => audit.Append($"{role.Mention} "));
+                        audit.AppendLine();
+                    }
+
+                    audit.Append("Current Roles: ");
+                    // We skip 1 because @everyone is always included as first in the roles list
+                    user.Roles.Skip(1).ToList().ForEach(role => audit.Append($"{role.Mention} "));
+                    SendAudit(audit.ToString(), ":wrench:");
+                }
+
+                // Clean up users from queue now that they've been processed
+                cachedUsers.Clear();
+                updatedUsers.Clear();
+
+                // Make sure mutex is released before thread sleeps
+                mutex.ReleaseMutex();
+                Thread.Sleep(1000 * 60 * MINUTES_BETWEEN_DISPATCH);
+            }
         }
     }
 }
