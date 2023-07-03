@@ -129,10 +129,12 @@ namespace Gatekeeper.Services
                 {
                     builder.Append($"nickname has been changed from **{beforeValue.Nickname}** to **{after.Nickname}**.");
                 }
+                else
+                    builder.Clear();
             }
 
             // if we have appended something to the string, send it as a log, otherwise do nothing
-            if (!builder.ToString().Equals($"**{beforeValue}'s** "))
+            if (builder.Length != 0)
             {
                 await SendAudit(builder.ToString(), ":wrench:");
             }
