@@ -13,7 +13,7 @@ namespace Gatekeeper
 {
     class Program
     {
-		public const string VERSION = "2.0.0";
+		public const string VERSION = "2.1.0";
 
 		private DiscordSocketClient _client;
 		private CommandService _commands;
