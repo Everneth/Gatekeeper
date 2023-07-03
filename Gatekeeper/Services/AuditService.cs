@@ -20,7 +20,7 @@ namespace Gatekeeper.Services
         private readonly ConfigService _config;
         public List<ulong> IgnoredChannelIds { get; }
         
-        // List of tuples used to compare difference in roles 
+        // List of users used to compare difference in roles
         private readonly List<SocketGuildUser> cachedUsers = new List<SocketGuildUser>();
         private readonly List<SocketGuildUser> updatedUsers = new List<SocketGuildUser>();
 
@@ -37,7 +37,7 @@ namespace Gatekeeper.Services
             _client.UserLeft += LogUserLeft;
 
             // To reduce audit spam for role changes (which often happen in bulk) we spawn a thread to
-            // dispatch bunched changes every 10 minutes
+            // dispatch bunched changes every so often
             Thread thread = new Thread(DispatchRoleChanges);
             thread.Start();
 
