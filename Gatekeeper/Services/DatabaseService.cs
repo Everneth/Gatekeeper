@@ -169,7 +169,7 @@ namespace Gatekeeper.Services
         {
             using var con = new MySqlConnection(connectionString);
 
-            string pattern = @"\<@!(\d+)\>";
+            string pattern = @"\<@!?(\d+)\>";
             Regex regex = new Regex(pattern);
             Match match = regex.Match(app.Friend);
             EMIPlayer friend = null;
