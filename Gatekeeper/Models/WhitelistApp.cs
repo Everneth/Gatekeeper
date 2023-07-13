@@ -92,7 +92,7 @@ namespace Gatekeeper.Models
             builder.WithTitle($"Whitelist Application for {InGameName ?? "[IGN]"}");
             builder.WithThumbnailUrl(User.GetAvatarUrl());
             builder.WithColor(color);
-            builder.WithDescription($"**Discord Name**: `{User.Username}#{User.Discriminator}`\n" +
+            builder.WithDescription($"**Discord Name**: `{User.Username}`\n" +
                 $"**Discord ID**: `{User.Id}`");
             builder.AddField("Minecraft IGN", InGameName ?? emptyChar);
             builder.AddField("Where are you from?", Location ?? emptyChar);
