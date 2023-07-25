@@ -184,7 +184,7 @@ namespace Gatekeeper.Services
             cmd.Parameters.AddWithValue("@uuid", app.MinecraftUuid ?? (object)DBNull.Value);
             cmd.Parameters.AddWithValue("@discordId", app.ApplicantDiscordId);
             cmd.Parameters.AddWithValue("@dateReferred", friend != null ? DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss") : null);
-            cmd.Parameters.AddWithValue("@referredBy", friend != null ? (int?)friend.Id : 0);
+            cmd.Parameters.AddWithValue("@referredBy", friend != null ? friend.Id : 0);
             return cmd.ExecuteNonQuery() > 0;
         }
 

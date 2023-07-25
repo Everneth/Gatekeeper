@@ -96,6 +96,12 @@ namespace Gatekeeper.Commands
                 await DeleteOriginalResponseAsync();
                 return;
             }
+
+            // We need to return the friend's username in the modal so no errors occur if they edit the app
+            string friend = app.Friend;
+            if (app.GetFriendDiscordId() != 0)
+                friend = _client.GetUser(app.GetFriendDiscordId()).Username;
+
             ModalBuilder builder = new ModalBuilder();
             builder.WithCustomId("info")
                 .WithTitle("Basic Applicant Information")
@@ -132,7 +138,7 @@ namespace Gatekeeper.Commands
                     Placeholder = "e.g. wumpus",
                     MinLength = 2,
                     MaxLength = 32,
-                    Value = app.Friend
+                    Value = friend
                 });
             await RespondWithModalAsync(builder.Build());
         }
@@ -255,8 +261,8 @@ namespace Gatekeeper.Commands
                         $" If you know someone else you may use them instead.", ephemeral: true);
                 }
             }
-            else
-                await FollowupAsync($"Could not find user {username}", ephemeral: true);
+            else if (!username.Equals(modal.Fourth))
+                await FollowupAsync($"'{username}' not recognized as a user. Defaulted friend field to '{modal.Fourth}'.", ephemeral: true);
 
             app.FillInfoFromModal(modal.First, modal.Second, modal.Third, modal.Fourth);
             await ModifyOriginalResponseAsync(message =>

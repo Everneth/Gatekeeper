@@ -4,6 +4,7 @@ using System;
 using System.Net;
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
 namespace Gatekeeper.Models
@@ -49,6 +50,16 @@ namespace Gatekeeper.Models
             IsApproved = isApproved;
             ApplicantDiscordId = applicantDiscordId;
             MinecraftUuid = minecraftUuid;
+        }
+
+        public ulong GetFriendDiscordId()
+        {
+            if (Friend == null || !Friend.Contains('@'))
+                return 0;
+            string pattern = @"\<@!?(\d+)\>";
+            Regex regex = new Regex(pattern);
+            Match match = regex.Match(Friend);
+            return ulong.Parse(match.Groups[1].Value);
         }
 
         public void FillInfoFromModal(string ign, string location, string ageString, string friend)
