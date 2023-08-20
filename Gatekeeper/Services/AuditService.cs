@@ -57,7 +57,7 @@ namespace Gatekeeper.Services
 
         private async Task LogMessageDeleted(Cacheable<IMessage, ulong> cachedMessage, Cacheable<IMessageChannel, ulong> channel)
         {
-            if (cachedMessage.Value == null || IgnoredChannelIds.Contains(channel.Id)) return;
+            if (cachedMessage.Value == null || channel.Value is IThreadChannel || IgnoredChannelIds.Contains(channel.Id)) return;
             
             var message = await cachedMessage.GetOrDownloadAsync();
             string audit = $"**{message.Author}'s** message in <#{channel.Id}> was deleted. Content: \n{message.Content}";
@@ -74,6 +74,7 @@ namespace Gatekeeper.Services
             var message = cachedMessage.Value;
             if (message == null ||
                 message.Content == null ||
+                channel is IThreadChannel ||
                 IgnoredChannelIds.Contains(channel.Id) ||
                 message.Content.Equals(newMessage.Content)) return;
 

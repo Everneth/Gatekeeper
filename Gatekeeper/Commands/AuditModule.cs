@@ -22,7 +22,7 @@ namespace Gatekeeper.Commands
         }
 
         [SlashCommand("ignore", "Have the audit logs ignore any events in the specified channel.")]
-        public async Task IgnoreChannel([Summary("Channel", "The channel you want the log to ignore")] ISocketMessageChannel channel = null)
+        public async Task IgnoreChannel([Summary("Channel", "The channel you want the log to ignore")] IChannel channel = null)
         {
             if (channel == null)
             {
