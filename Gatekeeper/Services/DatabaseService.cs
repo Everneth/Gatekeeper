@@ -1,8 +1,7 @@
 ﻿using Discord.WebSocket;
 using Gatekeeper.Extensions;
 using Gatekeeper.Models;
-using MySql.Data.MySqlClient;
-using Org.BouncyCastle.Utilities;
+using MySqlConnector;
 using System;
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
