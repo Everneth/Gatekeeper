@@ -25,5 +25,7 @@ namespace Gatekeeper.Models
         public ulong AppsChannelId { get; set; }
         [JsonProperty("general_channel_id")]
         public ulong GeneralChannelId { get; set; }
+        [JsonProperty("patron_channel_id")]
+        public ulong PatronChannelId { get; set; }
     }
 }

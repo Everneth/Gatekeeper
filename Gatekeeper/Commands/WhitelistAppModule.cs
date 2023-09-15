@@ -203,9 +203,14 @@ namespace Gatekeeper.Commands
                 await DeleteOriginalResponseAsync();
                 return;
             }
+            // Sending the app to the apps channel for staff review
+            SendAppToChannel(_config.BotConfig.AppsChannelId, app);
+
+            // Send the application to the patrons channel for discussion
             SocketGuild guild = _client.GetGuild(_config.BotConfig.GuildId);
-            SocketTextChannel channel = guild.GetTextChannel(_config.BotConfig.AppsChannelId);
-            await channel.SendMessageAsync(embed: app.BuildApplicationEmbed());
+            var appThread = await guild.GetTextChannel(_config.BotConfig.PatronChannelId)
+                .CreateThreadAsync($"{app.User.Username}'s Application Thread");
+            SendAppToChannel(appThread.Id, app);
 
             SocketRole applicant = guild.Roles.FirstOrDefault(role => role.Name == "Applicant");
             await guild.GetUser(Context.User.Id).AddRoleAsync(applicant);
@@ -223,8 +228,8 @@ namespace Gatekeeper.Commands
             // The user has claimed they have a friend, friend confirmation message needs to be sent
             if (app.Friend.Contains('@'))
             {
-                channel = guild.GetTextChannel(_config.BotConfig.GeneralChannelId);
-                await channel.SendMessageAsync($"Hey {app.Friend}, {app.User.Mention} has claimed you as a friend. Please press one of the buttons to confirm/deny them.",
+                await guild.GetTextChannel(_config.BotConfig.GeneralChannelId)
+                    .SendMessageAsync($"Hey {app.Friend}, {app.User.Mention} has claimed you as a friend. Please press one of the buttons to confirm/deny them.",
                     components: BuildFriendConfirmationComponents());
             }
         }
@@ -431,6 +436,12 @@ namespace Gatekeeper.Commands
                 "\r\n***Jasper** - Your friendly guild bouncer and welcoming committee*\r\n",
                 components: components.Build());
             await RespondAsync("sent", ephemeral: true);
+        }
+        private async void SendAppToChannel(ulong channelId, WhitelistApp app, string message = null)
+        {
+            SocketGuild guild = _client.GetGuild(_config.BotConfig.GuildId);
+            SocketTextChannel channel = guild.GetTextChannel(channelId);
+            await channel.SendMessageAsync(text: message, embed: app.BuildApplicationEmbed());
         }
     }
 }
