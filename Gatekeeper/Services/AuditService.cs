@@ -49,7 +49,7 @@ namespace Gatekeeper.Services
         private async Task SendAudit(string audit, string emote)
         {
             TimeSpan currentTime = DateTime.Now.TimeOfDay;
-            var socketGuildChannel = _client.GetGuild(_config.BotConfig.GuildId).Channels.FirstOrDefault(x => x.Name.Equals("admin-log"));
+            var socketGuildChannel = _client.GetGuild(_config.BotConfig.GuildId).GetChannel(303912184944263169);
             var channel = socketGuildChannel.Guild.GetTextChannel(socketGuildChannel.Id);
 
             await channel.SendMessageAsync($"{emote} `[{currentTime:hh\\:mm\\:ss}]` {audit}", allowedMentions: AllowedMentions.None);
