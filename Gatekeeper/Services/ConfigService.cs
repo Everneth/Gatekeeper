@@ -20,7 +20,7 @@ namespace Gatekeeper.Services
             _client = services.GetRequiredService<DiscordSocketClient>();
             _data = services.GetRequiredService<DataService>();
             _services = services;
-            RankingConfig = _data.Load("ranking_config", RankingConfig);
+            //RankingConfig = _data.Load("ranking_config", RankingConfig);
             BotConfig = _data.Load("config", BotConfig);
         }
     }

@@ -13,7 +13,7 @@ using System.Threading.Tasks;
 
 namespace Gatekeeper.Commands
 {
-    public class WhitelistAppModule : InteractionModuleBase<SocketInteractionContext>
+    /*public class WhitelistAppModule : InteractionModuleBase<SocketInteractionContext>
     {
         private readonly DiscordSocketClient _client;
         private readonly ConfigService _config;
@@ -443,5 +443,5 @@ namespace Gatekeeper.Commands
             SocketTextChannel channel = guild.GetTextChannel(channelId);
             await channel.SendMessageAsync(text: message, embed: app.BuildApplicationEmbed());
         }
-    }
+    }*/
 }

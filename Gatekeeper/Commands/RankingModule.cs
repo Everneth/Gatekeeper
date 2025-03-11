@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace Gatekeeper.Commands
 {
-    [DefaultMemberPermissions(GuildPermission.Administrator)]
+    /*[DefaultMemberPermissions(GuildPermission.Administrator)]
     [Group("ranking", "All the commands pertaining to user ranking for the application process.")]
     public class RankingModule : InteractionModuleBase<SocketInteractionContext>
     {
@@ -69,5 +69,5 @@ namespace Gatekeeper.Commands
             _data.Load("applicants", _ranking.Applicants);
             await RespondAsync("Applicant list reloaded.");
         }
-    }
+    }*/
 }

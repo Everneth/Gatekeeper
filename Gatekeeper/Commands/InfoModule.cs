@@ -13,10 +13,9 @@ namespace Gatekeeper.Commands
     [Group("info", "All commands pertaining to getting user information")]
     public class InfoModule : InteractionModuleBase<SocketInteractionContext>
     {
-        private readonly DatabaseService _database;
         public InfoModule(IServiceProvider services)
         {
-            _database = services.GetRequiredService<DatabaseService>();
+
         }
 
         [SlashCommand("getid", "Search users and return a list of IDs")]

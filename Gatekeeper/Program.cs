@@ -36,16 +36,16 @@ namespace Gatekeeper
 		{
             using var services = ConfigureServices();
             _client = services.GetRequiredService<DiscordSocketClient>();
-            _ranking = services.GetRequiredService<RankingService>();
+            //_ranking = services.GetRequiredService<RankingService>();
             _config = services.GetRequiredService<ConfigService>();
-            _joinEvent = services.GetRequiredService<UserJoinEvent>();
-			_leaveEvent = services.GetRequiredService<UserLeaveEvent>();
+            //_joinEvent = services.GetRequiredService<UserJoinEvent>();
+			//_leaveEvent = services.GetRequiredService<UserLeaveEvent>();
             _data = services.GetRequiredService<DataService>();
             _auditer = services.GetRequiredService<AuditService>();
             _manager = services.GetRequiredService<RoleService>();
-            _database = services.GetRequiredService<DatabaseService>();
-			_whitelist = services.GetRequiredService<WhitelistAppService>();
-			_memberUpdatedEvent = services.GetRequiredService<GuildMemberUpdated>();
+            //_database = services.GetRequiredService<DatabaseService>();
+			//_whitelist = services.GetRequiredService<WhitelistAppService>();
+			//_memberUpdatedEvent = services.GetRequiredService<GuildMemberUpdated>();
 
             _client.Log += Log;
             _client.Ready += OnReady;
@@ -66,7 +66,7 @@ namespace Gatekeeper
 			await _client.GetGuild(_config.BotConfig.GuildId).DownloadUsersAsync();
 
 			// This is called here because loading the apps requires members already be cached
-			_whitelist.Load();
+			//_whitelist.Load();
 		}
 
         private Task Log(LogMessage msg)
@@ -82,21 +82,21 @@ namespace Gatekeeper
 					new DiscordSocketConfig
 					{
                         AlwaysDownloadUsers = true,
-                        MessageCacheSize = 3000,
+                        MessageCacheSize = 1000,
                         GatewayIntents = GatewayIntents.AllUnprivileged | GatewayIntents.GuildMembers | GatewayIntents.MessageContent
                     }))
 				.AddSingleton<InteractionService>()
 				.AddSingleton<InteractionHandlerService>()
-				.AddSingleton<RankingService>()
+				//.AddSingleton<RankingService>()
 				.AddSingleton<ConfigService>()
 				.AddSingleton<DataService>()
-				.AddSingleton<UserJoinEvent>()
-				.AddSingleton<UserLeaveEvent>()
+				//.AddSingleton<UserJoinEvent>()
+				//.AddSingleton<UserLeaveEvent>()
 				.AddSingleton<AuditService>()
 				.AddSingleton<RoleService>()
-				.AddSingleton<DatabaseService>()
-				.AddSingleton<WhitelistAppService>()
-				.AddSingleton<GuildMemberUpdated>()
+				//.AddSingleton<DatabaseService>()
+				//.AddSingleton<WhitelistAppService>()
+				//.AddSingleton<GuildMemberUpdated>()
 				.BuildServiceProvider();
 		}
 	}
